@@ -28,17 +28,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
-    pub enum ProjectileNoiseLevel {
-        Silent,
-        Medium,
-        Loud,
-        Shout,
-        Quiet
-    }
-}
-
-tag_definition! {
     #[flags, repr(u16)]
     pub enum ProjectileMaterialFlags {
         CannotBeOverpenetrated = 1
@@ -143,7 +132,7 @@ tag_definition! {
         pub object_definition: ObjectDefinition,
         pub projectile_flags: TagEnum<i32, ProjectileDefinitionFlags>,
         pub detonation_timer_starts: TagEnum<i16, ProjectileDetonationTimerStart>,
-        pub impact_noise: TagEnum<i16, ProjectileNoiseLevel>,
+        pub impact_noise: TagEnum<i16, ObjectNoiseLevel>,
         pub collision_radius: f32,
         pub arming_time: f32,
         pub danger_radius: f32,
@@ -151,7 +140,7 @@ tag_definition! {
         pub minimum_velocity: f32,
         pub maximum_range: f32,
         pub detonation_charge_time: f32,
-        pub detonation_noise: TagEnum<i16, ProjectileNoiseLevel>,
+        pub detonation_noise: TagEnum<i16, ObjectNoiseLevel>,
         pub super_detonation_projectile_count: i16,
         pub super_detonation_delay: f32,
         pub detonation_started: TagReference,
