@@ -7,7 +7,7 @@ use crate::tags::{TagGroupDefinition, TagInstance};
 pub struct TagCacheHeader {
     unused1: u32,
     pub index_offset: i32,
-    pub index_count: i32,
+    pub instance_count: i32,
     unused2: u32,
     pub guid: i64,
     unused3: u64
@@ -33,11 +33,11 @@ impl<'a> TagCache {
         unsafe { (self.mmap.as_ptr() as *const TagCacheHeader).as_ref() }
     }
 
-    pub fn get_index_count(&'a self) -> i32 {
-        self.get_header().unwrap().index_count
+    pub fn get_instance_count(&'a self) -> i32 {
+        self.get_header().unwrap().instance_count
     }
 
-    pub fn get_tag_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
+    pub fn get_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
         let header = self.get_header().unwrap();
 
         let tag_offsets: *const i32 = unsafe {
@@ -56,7 +56,7 @@ impl<'a> TagCache {
         }
     }
 
-    pub fn get_tag_definition<T: Copy + TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
+    pub fn get_definition<T: Copy + TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
         let header = self.get_header().unwrap();
         
         let tag_offsets: *const i32 = unsafe {
