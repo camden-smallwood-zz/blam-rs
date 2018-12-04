@@ -1,6 +1,6 @@
 use memmap::MmapMut;
-use std::{fs::OpenOptions, mem};
-use crate::tags::{TagGroupDefinition, TagInstance, TagInstanceHeader};
+use std::fs::OpenOptions;
+use crate::tags::{TagGroupDefinition, TagInstance};
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -17,7 +17,7 @@ pub struct TagCache {
     pub mmap: MmapMut
 }
 
-impl TagCache {
+impl<'a> TagCache {
     pub fn open(path: &str) -> TagCache {
         let file = OpenOptions::new()
             .read(true)
@@ -29,16 +29,19 @@ impl TagCache {
         }
     }
 
-    pub fn get_header(&mut self) -> TagCacheHeader {
-        let result = self.mmap.as_mut_ptr() as *mut TagCacheHeader;
-        unsafe { *result }
+    pub fn get_header(&'a self) -> Option<&'a TagCacheHeader> {
+        unsafe { (self.mmap.as_ptr() as *const TagCacheHeader).as_ref() }
     }
 
-    pub fn get_tag_instance(&mut self, tag_index: isize) -> Option<TagInstance> {
-        let header = self.get_header();
-        
-        let tag_offsets: *mut i32 = unsafe {
-            self.mmap.as_mut_ptr().offset(header.index_offset as isize) as *mut i32
+    pub fn get_index_count(&'a self) -> i32 {
+        self.get_header().unwrap().index_count
+    }
+
+    pub fn get_tag_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
+        let header = self.get_header().unwrap();
+
+        let tag_offsets: *const i32 = unsafe {
+            self.mmap.as_ptr().offset(header.index_offset as isize) as *const i32
         };
 
         if tag_offsets.is_null() {
@@ -48,57 +51,16 @@ impl TagCache {
             if tag_offset <= 0 {
                 None
             } else {
-                let mut result = TagInstance::new();
-
-                result.header = Some(unsafe { *(self.mmap.as_mut_ptr().offset(tag_offset) as *mut TagInstanceHeader) });
-                result.index = Some(tag_index as isize);
-                result.offset = Some(tag_offset);
-
-                let tag_header = result.header.unwrap();
-
-                let tag_dependencies: *mut i32 = unsafe {
-                    self.mmap.as_mut_ptr()
-                        .offset(tag_offset)
-                        .offset(mem::size_of::<TagInstanceHeader>() as isize) as *mut i32
-                };
-
-                for i in 0..tag_header.dependency_count {
-                    result.dependencies.push(unsafe { *tag_dependencies.offset(i as isize) as isize });
-                }
-
-                let tag_data_fixups: *mut u32 = unsafe {
-                    self.mmap.as_mut_ptr()
-                        .offset(tag_offset)
-                        .offset(mem::size_of::<TagInstanceHeader>() as isize)
-                        .offset((mem::size_of::<i32>() * tag_header.dependency_count as usize) as isize) as *mut u32
-                };
-
-                for i in 0..tag_header.data_fixup_count {
-                    result.data_fixups.push(unsafe { *tag_data_fixups.offset(i as isize) as usize });
-                }
-                
-                let tag_resource_fixups: *mut u32 = unsafe {
-                    self.mmap.as_mut_ptr()
-                        .offset(tag_offset)
-                        .offset(mem::size_of::<TagInstanceHeader>() as isize)
-                        .offset((mem::size_of::<i32>() * tag_header.dependency_count as usize) as isize)
-                        .offset((mem::size_of::<u32>() * tag_header.data_fixup_count as usize) as isize) as *mut u32
-                };
-
-                for i in 0..tag_header.resource_fixup_count {
-                    result.resource_fixups.push(unsafe { *tag_resource_fixups.offset(i as isize) as usize });
-                }
-                
-                Some(result)
+                unsafe { (self.mmap.as_ptr().offset(tag_offset) as *const TagInstance).as_ref() }
             }
         }
     }
 
-    pub fn get_tag_definition<T: Copy + TagGroupDefinition>(&mut self, tag_index: isize) -> Option<T> {
-        let header = self.get_header();
+    pub fn get_tag_definition<T: Copy + TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
+        let header = self.get_header().unwrap();
         
-        let tag_offsets: *mut i32 = unsafe {
-            self.mmap.as_mut_ptr().offset(header.index_offset as isize) as *mut i32
+        let tag_offsets: *const i32 = unsafe {
+            self.mmap.as_ptr().offset(header.index_offset as isize) as *const i32
         };
 
         if tag_offsets.is_null() {
@@ -108,8 +70,10 @@ impl TagCache {
             if tag_offset <= 0 {
                 None
             } else {
-                let tag_header = unsafe { *(self.mmap.as_mut_ptr().offset(tag_offset) as *mut TagInstanceHeader) };
-                Some(unsafe { *(self.mmap.as_mut_ptr().offset(tag_offset + tag_header.definition_offset as isize) as *mut T) })
+                unsafe {
+                    let tag_instance = (self.mmap.as_ptr().offset(tag_offset) as *const TagInstance).as_ref().unwrap();
+                    (self.mmap.as_ptr().offset(tag_offset + tag_instance.definition_offset as isize) as *const T).as_ref()
+                }
             }
         }
     }
