@@ -37,7 +37,7 @@ impl<'a> TagCache {
         self.get_header().unwrap().instance_count
     }
 
-    pub fn get_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
+    pub fn get_instance_offset(&self, tag_index: isize) -> isize {
         let header = self.get_header().unwrap();
 
         let tag_offsets: *const i32 = unsafe {
@@ -45,36 +45,49 @@ impl<'a> TagCache {
         };
 
         if tag_offsets.is_null() {
-            None
+            -1
         } else {
-            let tag_offset = unsafe { *tag_offsets.offset(tag_index) as isize };
-            if tag_offset <= 0 {
-                None
-            } else {
-                unsafe { (self.mmap.as_ptr().offset(tag_offset) as *const TagInstance).as_ref() }
-            }
+            unsafe { *tag_offsets.offset(tag_index) as isize }
         }
     }
 
-    pub fn get_definition<T: Copy + TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
-        let header = self.get_header().unwrap();
-        
-        let tag_offsets: *const i32 = unsafe {
-            self.mmap.as_ptr().offset(header.index_offset as isize) as *const i32
-        };
-
-        if tag_offsets.is_null() {
-            None
+    pub fn get_instance_ptr<T>(&self, tag_index: isize, offset: isize) -> *const T {
+        let tag_offset = self.get_instance_offset(tag_index);
+        if tag_offset <= 0 {
+            std::ptr::null()
         } else {
-            let tag_offset = unsafe { *tag_offsets.offset(tag_index) as isize };
-            if tag_offset <= 0 {
-                None
-            } else {
-                unsafe {
-                    let tag_instance = (self.mmap.as_ptr().offset(tag_offset) as *const TagInstance).as_ref().unwrap();
-                    (self.mmap.as_ptr().offset(tag_offset + tag_instance.definition_offset as isize) as *const T).as_ref()
-                }
-            }
+            unsafe { self.mmap.as_ptr().offset(tag_offset + offset) as *const T }
+        }
+    }
+
+    pub fn get_instance_mut_ptr<T>(&mut self, tag_index: isize, offset: isize) -> *mut T {
+        let tag_offset = self.get_instance_offset(tag_index);
+        if tag_offset <= 0 {
+            std::ptr::null_mut()
+        } else {
+            unsafe { self.mmap.as_mut_ptr().offset(tag_offset + offset) as *mut T }
+        }
+    }
+
+    pub fn get_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
+        unsafe { self.get_instance_ptr::<TagInstance>(tag_index, 0).as_ref() }
+    }
+
+    pub fn get_instance_mut(&'a mut self, tag_index: isize) -> Option<&'a mut TagInstance> {
+        unsafe { self.get_instance_mut_ptr::<TagInstance>(tag_index, 0).as_mut() }
+    }
+
+    pub fn get_definition<T: TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
+        unsafe {
+            let tag_instance = self.get_instance(tag_index).unwrap();
+            self.get_instance_ptr::<T>(tag_index, tag_instance.definition_offset as isize).as_ref()
+        }
+    }
+
+    pub fn get_definition_mut<T: TagGroupDefinition>(&'a mut self, tag_index: isize) -> Option<&'a mut T> {
+        unsafe {
+            let tag_instance = self.get_instance(tag_index).unwrap();
+            self.get_instance_mut_ptr::<T>(tag_index, tag_instance.definition_offset as isize).as_mut()
         }
     }
 }
