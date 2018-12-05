@@ -24,20 +24,20 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u16)]
     pub enum ObjectDefinitionFlags {
-        DoesNotCastShadow = 1,
-        SearchCardinalDirectionMaps = 2,
-        Bit2 = 4,
-        NotAPathfindingObstacle = 8,
-        ExtensionOfParent = 16,
-        DoesNotCauseCollisionDamage = 32,
-        EarlyMover = 64,
-        EarlyMoverLocalizedPhysics = 128,
-        UseStaticMassiveLightmapSample = 256,
-        ObjectScalesAttachments = 512,
-        InheritsPlayersAppearance = 1024,
-        DeadBipedsCantLocalize = 2048,
-        AttachToClustersByDynamicSphere = 4096,
-        EffectsDoNotSpawnObjectsInMultiplayer = 8192
+        DoesNotCastShadow = 1 << 0,
+        SearchCardinalDirectionMaps = 1 << 1,
+        Bit2 = 1 << 2,
+        NotAPathfindingObstacle = 1 << 3,
+        ExtensionOfParent = 1 << 4,
+        DoesNotCauseCollisionDamage = 1 << 5,
+        EarlyMover = 1 << 6,
+        EarlyMoverLocalizedPhysics = 1 << 7,
+        UseStaticMassiveLightmapSample = 1 << 8,
+        ObjectScalesAttachments = 1 << 9,
+        InheritsPlayersAppearance = 1 << 10,
+        DeadBipedsCantLocalize = 1 << 11,
+        AttachToClustersByDynamicSphere = 1 << 12,
+        EffectsDoNotSpawnObjectsInMultiplayer = 1 << 13
     }
 }
 
@@ -86,9 +86,9 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ObjectAiFlags {
-        DestroyableCover = 1,
-        PathfindingIgnoreWhenDead = 2,
-        DynamicCover = 4
+        DestroyableCover = 1 << 0,
+        PathfindingIgnoreWhenDead = 1 << 1,
+        DynamicCover = 1 << 2
     }
 }
 
@@ -131,10 +131,10 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ObjectFunctionFlags {
-        Invert = 1,
-        MappingDoesNotControlsActive = 2,
-        AlwaysActive = 4,
-        RandomTimeOffset = 8
+        Invert = 1 << 0,
+        MappingDoesNotControlsActive = 1 << 1,
+        AlwaysActive = 1 << 2,
+        RandomTimeOffset = 1 << 3
     }
 }
 
@@ -153,8 +153,8 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ObjectAttachmentVisionFlags {
-        GameplayVisionMode = 1,
-        TheaterVisionMode = 2
+        GameplayVisionMode = 1 << 0,
+        TheaterVisionMode = 1 << 1
     }
 }
 
@@ -172,8 +172,8 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u8)]
     pub enum ObjectAttachmentFlags {
-        ForceAlwaysOn = 1,
-        EffectSizeScaleFromObjectScale = 2
+        ForceAlwaysOn = 1 << 0,
+        EffectSizeScaleFromObjectScale = 1 << 1
     }
 }
 
@@ -207,8 +207,8 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ObjectChangeColorScaleFlags {
-        BlendInHsv = 1,
-        MoreColors = 2
+        BlendInHsv = 1 << 0,
+        MoreColors = 1 << 1
     }
 }
 
@@ -238,16 +238,16 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u16)]
     pub enum ObjectMultiplayerEngineFlags {
-        CaptureTheFlag = 1,
-        Slayer = 2,
-        Oddball = 4,
-        KingOfTheHill = 8,
-        Juggernaut = 16,
-        Territories = 32,
-        Assault = 64,
-        Vip = 128,
-        Infection = 256,
-        Bit9 = 512
+        CaptureTheFlag = 1 << 0,
+        Slayer = 1 << 1,
+        Oddball = 1 << 2,
+        KingOfTheHill = 1 << 3,
+        Juggernaut = 1 << 4,
+        Territories = 1 << 5,
+        Assault = 1 << 6,
+        Vip = 1 << 7,
+        Infection = 1 << 8,
+        Bit9 = 1 << 9
     }
 }
 
@@ -284,25 +284,25 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u8)]
     pub enum ObjectMultiplayerTeleporterFlags {
-        DisallowsPlayers = 1,
-        AllowsLandVehicles = 2,
-        AllowsHeavyVehicles = 4,
-        AllowsFlyingVehicles = 8,
-        AllowsProjectiles = 16
+        DisallowsPlayers = 1 << 0,
+        AllowsLandVehicles = 1 << 1,
+        AllowsHeavyVehicles = 1 << 2,
+        AllowsFlyingVehicles = 1 << 3,
+        AllowsProjectiles = 1 << 4
     }
 }
 
 tag_definition! {
     #[flags, repr(u8)]
     pub enum ObjectMultiplayerFlags {
-        OnlyRenderInEditor = 1,
-        ValidInitialPlayerSpawn = 2,
-        FixedBoundaryOrientation = 4,
-        InheritOwningTeamColor = 8,
-        Bit4 = 16,
-        Bit5 = 32,
-        Bit6 = 64,
-        Bit7 = 128
+        OnlyRenderInEditor = 1 << 0,
+        ValidInitialPlayerSpawn = 1 << 1,
+        FixedBoundaryOrientation = 1 << 2,
+        InheritOwningTeamColor = 1 << 3,
+        Bit4 = 1 << 4,
+        Bit5 = 1 << 5,
+        Bit6 = 1 << 6,
+        Bit7 = 1 << 7
     }
 }
 
@@ -339,13 +339,13 @@ tag_definition! {
         pub length: f32,
         pub top: f32,
         pub bottom: f32,
-        pub unknown1: f32,
-        pub unknown2: f32,
-        pub unknown3: f32,
-        pub unknown4: i32,
-        pub unknown5: i32,
+        unknown1: f32,
+        unknown2: f32,
+        unknown3: f32,
+        unknown4: i32,
+        unknown5: i32,
         pub child_object: TagReference,
-        pub unknown6: i32,
+        unknown6: i32,
         pub shaders: [TagReference; 8]
     }
 }

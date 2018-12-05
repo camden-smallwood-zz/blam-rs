@@ -3,17 +3,17 @@ use crate::{math::*, objects::*, tags::*, text::*};
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ProjectileDefinitionFlags {
-        OrientedAlongVelocity = 1,
-        AiMustUseBallisticAiming = 2,
-        DetonationMaxTimeIfAttached = 4,
-        HasSuperCombiningExplosion = 8,
-        DamageScalesBasedOnDistance = 16,
-        TravelsInstantaneously = 32,
-        SteeringAdjustsOrientation = 64,
-        DoNotNoiseUpSteering = 128,
-        CanTrackBehindItself = 256,
-        RobotronSteering = 512,
-        FasterWhenOwnedByPlayer = 1024
+        OrientedAlongVelocity = 1 << 0,
+        AiMustUseBallisticAiming = 1 << 1,
+        DetonationMaxTimeIfAttached = 1 << 2,
+        HasSuperCombiningExplosion = 1 << 3,
+        DamageScalesBasedOnDistance = 1 << 4,
+        TravelsInstantaneously = 1 << 5,
+        SteeringAdjustsOrientation = 1 << 6,
+        DoNotNoiseUpSteering = 1 << 7,
+        CanTrackBehindItself = 1 << 8,
+        RobotronSteering = 1 << 9,
+        FasterWhenOwnedByPlayer = 1 << 10
     }
 }
 
@@ -30,7 +30,7 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u16)]
     pub enum ProjectileMaterialFlags {
-        CannotBeOverpenetrated = 1
+        CannotBeOverpenetrated = 1 << 0
     }
 }
 
@@ -50,17 +50,17 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u16)]
     pub enum ProjectileMaterialResponseFlags {
-        OnlyAgainstUnits = 1,
-        NeverAgainstUnits = 2,
-        OnlyAgainstBipeds = 4,
-        OnlyAgainstVehicles = 8,
-        NeverAgainstWussPlayers = 16,
-        OnlyWhenTethered = 32,
-        OnlyWhenNotTethered = 64,
-        OnlyAgainstDeadBipeds = 128,
-        NeverAgainstDeadBipeds = 256,
-        OnlyAiProjectiles = 512,
-        NeverAiProjectiles = 1024
+        OnlyAgainstUnits = 1 << 0,
+        NeverAgainstUnits = 1 << 1,
+        OnlyAgainstBipeds = 1 << 2,
+        OnlyAgainstVehicles = 1 << 3,
+        NeverAgainstWussPlayers = 1 << 4,
+        OnlyWhenTethered = 1 << 5,
+        OnlyWhenNotTethered = 1 << 6,
+        OnlyAgainstDeadBipeds = 1 << 7,
+        NeverAgainstDeadBipeds = 1 << 8,
+        OnlyAiProjectiles = 1 << 9,
+        NeverAiProjectiles = 1 << 10
     }
 }
 
@@ -128,8 +128,7 @@ tag_definition! {
 
 tag_definition! {
     #[group_name = "projectile", group_tag = "proj"]
-    pub struct ProjectileDefinition {
-        pub object_definition: ObjectDefinition,
+    pub struct ProjectileDefinition : ObjectDefinition {
         pub projectile_flags: TagEnum<i32, ProjectileDefinitionFlags>,
         pub detonation_timer_starts: TagEnum<i16, ProjectileDetonationTimerStart>,
         pub impact_noise: TagEnum<i16, ObjectNoiseLevel>,

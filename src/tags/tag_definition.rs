@@ -106,6 +106,29 @@ macro_rules! tag_definition {
         }
     };
 
+    ($struct_vis:vis struct $struct_name:ident : $base_type:ident {
+        $($field_vis:vis $field_name:ident: $field_type:ty),*
+    }) => {
+        #[repr(C, packed)]
+        #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+        $struct_vis struct $struct_name {
+            pub base: $base_type,
+            $($field_vis $field_name: $field_type,)*
+        }
+        tag_definition_impl!($struct_name);
+        impl TagStructDefinition for $struct_name {
+            fn get_fields() -> Vec<TagFieldInfo> {
+                vec![
+                    $(
+                        TagFieldInfo {
+                            name: stringify!($field_name).to_string(),
+                            field: tag_field_impl!($field_type)
+                        },
+                    )*]
+            }
+        }
+    };
+
     (
         #[group_name = $group_name_expr:expr, group_tag = $group_tag_expr:expr]
         $struct_vis:vis struct $struct_name:ident {
@@ -137,4 +160,38 @@ macro_rules! tag_definition {
             fn get_group_tag() -> Tag { Tag::from($group_tag_expr) }
         }
     };
+    
+    (
+        #[group_name = $group_name_expr:expr, group_tag = $group_tag_expr:expr]
+        $struct_vis:vis struct $struct_name:ident : $base_type:ident {
+            $($field_vis:vis $field_name:ident: $field_type:ty),*
+        }
+    ) => {
+        #[repr(C, packed)]
+        #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+        $struct_vis struct $struct_name {
+            pub base: $base_type,
+            $($field_vis $field_name: $field_type,)*
+        }
+        
+        tag_definition_impl!($struct_name);
+        
+        impl TagStructDefinition for $struct_name {
+            fn get_fields() -> Vec<TagFieldInfo> {
+                vec![
+                    $(
+                        TagFieldInfo {
+                            name: stringify!($field_name).to_string(),
+                            field: tag_field_impl!($field_type)
+                        },
+                    )*]
+            }
+        }
+
+        impl TagGroupDefinition for $struct_name {
+            fn get_group_name() -> String { $group_name_expr.to_string() }
+            fn get_group_tag() -> Tag { Tag::from($group_tag_expr) }
+        }
+    };
+    
 }

@@ -15,14 +15,14 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u8)]
     pub enum MeshPartFlags {
-        IsWaterSurface = 1,
-        PerVertexLightmapPart = 2,
-        RenderInZPrepass = 4,
-        CanBeRenderedInDrawBundles = 8,
-        DrawCullDistanceMedium = 16,
-        DrawCullDistanceClose = 32,
-        DrawCullRenderingShields = 64,
-        DrawCullRenderingActiveCamo = 128
+        IsWaterSurface = 1 << 0,
+        PerVertexLightmapPart = 1 << 1,
+        RenderInZPrepass = 1 << 2,
+        CanBeRenderedInDrawBundles = 1 << 3,
+        DrawCullDistanceMedium = 1 << 4,
+        DrawCullDistanceClose = 1 << 5,
+        DrawCullRenderingShields = 1 << 6,
+        DrawCullRenderingActiveCamo = 1 << 7
     }
 }
 
@@ -52,14 +52,14 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u8)]
     pub enum MeshFlags {
-        HasVertexColor = 1,
-        UseRegionIndexForSorting = 2,
-        CanBeRenderedInDrawBundles = 4,
-        IsCustomShadowCaster = 8,
-        IsUnindexed = 16,
-        RenderInZPrepass = 32,
-        HasWater = 64,
-        HasDecals = 128
+        HasVertexColor = 1 << 0,
+        UseRegionIndexForSorting = 1 << 1,
+        CanBeRenderedInDrawBundles = 1 << 2,
+        IsCustomShadowCaster = 1 << 3,
+        IsUnindexed = 1 << 4,
+        RenderInZPrepass = 1 << 5,
+        HasWater = 1 << 6,
+        HasDecals = 1 << 7
     }
 }
 

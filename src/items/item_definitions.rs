@@ -3,9 +3,9 @@ use crate::{math::*, objects::*, tags::*, text::*};
 tag_definition! {
     #[flags, repr(i32)]
     pub enum ItemDefinitionFlags {
-        AlwaysMaintainsZUp = 1,
-        DestroyedByExplosions = 2,
-        UnaffectedByGravity = 4
+        AlwaysMaintainsZUp = 1 << 0,
+        DestroyedByExplosions = 1 << 1,
+        UnaffectedByGravity = 1 << 2
     }
 }
 
@@ -17,8 +17,7 @@ tag_definition! {
 
 tag_definition! {
     #[group_name = "item", group_tag = "item"]
-    pub struct ItemDefinition {
-        pub object_definition: ObjectDefinition,
+    pub struct ItemDefinition : ObjectDefinition {
         pub item_flags: TagEnum<i32, ItemDefinitionFlags>,
         pub old_message_index: i16,
         pub sort_order: i16,

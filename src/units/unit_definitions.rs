@@ -120,9 +120,9 @@ tag_definition! {
         pub unit_kind: TagEnum<u8, UnitMetagameKind>,
         pub unit_type: TagEnum<i8, UnitMetagameType>,
         pub unit_class: TagEnum<i8, UnitMetagameClass>,
-        pub unknown1: i8,
+        unknown1: i8,
         pub points: i16,
-        pub unknown2: i16
+        unknown2: i16
     }
 }
 
@@ -167,7 +167,7 @@ tag_definition! {
 tag_definition! {
     pub struct UnitDialogueVariant {
         pub variant_number: i16,
-        pub unknown: i16,
+        unknown: i16,
         pub dialogue: TagReference
     }
 }
@@ -215,7 +215,29 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(i32)]
     pub enum UnitSeatFlags {
-        None = 0
+        Invisible = 1 << 0,
+        Locked = 1 << 1,
+        Driver = 1 << 2,
+        Gunner = 1 << 3,
+        ThirdPersonCamera = 1 << 4,
+        AllowsWeapons = 1 << 5,
+        ThirdPersonOnEnter = 1 << 6,
+        FirstPersonCameraSlavedToGun = 1 << 7,
+        AllowVehicleCommunicationAnimations = 1 << 8,
+        NotValidWithoutDriver = 1 << 9,
+        AllowAiNonCombatants = 1 << 10,
+        BoardingSeat = 1 << 11,
+        AiFiringDisabledByMaxAcceleration = 1 << 12,
+        BoardingEntersSeat = 1 << 13,
+        BoardingNeedAnyPassenger = 1 << 14,
+        ControlsOpenAndClose = 1 << 15,
+        InvalidForPlayer = 1 << 16,
+        InvalidForNonPlayer = 1 << 17,
+        GunnerPlayerOnly = 1 << 18,
+        InvisibleUnderMajorDamage = 1 << 19,
+        MeleeInstantKillable = 1 << 20,
+        LeaderPreference = 1 << 21,
+        AllowsExitAndDetach = 1 << 22
     }
 }
 
@@ -243,12 +265,12 @@ tag_definition! {
 
 tag_definition! {
     pub struct UnitCameraAxisAcceleration {
-        pub unknown1: f32,
-        pub unknown2: f32,
-        pub unknown3: f32,
-        pub unknown4: f32,
-        pub unknown5: f32,
-        pub unknown6: f32
+        unknown1: f32,
+        unknown2: f32,
+        unknown3: f32,
+        unknown4: f32,
+        unknown5: f32,
+        unknown6: f32
     }
 }
 
@@ -320,8 +342,7 @@ tag_definition! {
 
 tag_definition! {
     #[group_name = "unit", group_tag = "unit"]
-    pub struct UnitDefinition {
-        pub object_definition: ObjectDefinition,
+    pub struct UnitDefinition : ObjectDefinition {
         pub unit_flags: TagEnum<i32, UnitDefinitionFlags>,
         pub default_team: TagEnum<i16, UnitMetagameTeam>,
         pub constant_sound_volume: TagEnum<i16, ObjectNoiseLevel>,

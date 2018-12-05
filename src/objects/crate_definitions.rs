@@ -3,29 +3,28 @@ use crate::{objects::*, tags::*};
 tag_definition! {
     #[flags, repr(u16)]
     pub enum CrateDefinitionFlags {
-        DoesNotBlockAreaOfEffect = 1,
-        AttachTextureCameraHack = 2,
-        Targetable = 4,
-        CrateWallsBlockAreaOfEffect = 8,
-        CrateBlocksDamageFlashDamageResponse = 16,
-        CrateBlocksRumbleDamageResponse = 32,
-        CrateTakesTopLevelAreaOfEffectDamage = 64,
-        CrateBlocksForcedProjectileOverpenetration = 128,
-        Unimportant = 256,
-        AlwaysCheckChildrenCollision = 512,
-        AllowFriendlyTeamToPassThroughInside = 1024,
-        AllowAllyTeamToPassThroughInside = 2048,
-        AllowFriendlyTeamToPassThroughOutside = 4096,
-        AllowAllyTeamToPassThroughOutside = 8192,
-        RejectAllContactPointsInside = 16384,
-        RejectAllContactPointsOutside = 32768
+        DoesNotBlockAreaOfEffect = 1 << 0,
+        AttachTextureCameraHack = 1 << 1,
+        Targetable = 1 << 2,
+        CrateWallsBlockAreaOfEffect = 1 << 3,
+        CrateBlocksDamageFlashDamageResponse = 1 << 4,
+        CrateBlocksRumbleDamageResponse = 1 << 5,
+        CrateTakesTopLevelAreaOfEffectDamage = 1 << 6,
+        CrateBlocksForcedProjectileOverpenetration = 1 << 7,
+        Unimportant = 1 << 8,
+        AlwaysCheckChildrenCollision = 1 << 9,
+        AllowFriendlyTeamToPassThroughInside = 1 << 10,
+        AllowAllyTeamToPassThroughInside = 1 << 11,
+        AllowFriendlyTeamToPassThroughOutside = 1 << 12,
+        AllowAllyTeamToPassThroughOutside = 1 << 13,
+        RejectAllContactPointsInside = 1 << 14,
+        RejectAllContactPointsOutside = 1 << 15
     }
 }
 
 tag_definition! {
     #[group_name = "crate", group_tag = "bloc"]
-    pub struct CrateDefinition {
-        pub object_definition: ObjectDefinition,
+    pub struct CrateDefinition : ObjectDefinition {
         pub crate_flags: TagEnum<u16, CrateDefinitionFlags>,
         unused1: TagPadding<u16>,
         unused2: TagPadding<[u32; 3]>,
