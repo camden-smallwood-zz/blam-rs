@@ -3,13 +3,41 @@ use crate::{math::*, objects::*, tags::*, text::*};
 tag_definition! {
     #[flags, repr(i32)]
     pub enum UnitDefinitionFlags {
-        None = 0
+        CircularAiming = 1,
+        DestroyedAfterDying = 2,
+        HalfSpeedInterpolation = 4,
+        FiresFromCamera = 8,
+        EntranceInsideBoundingSphere = 16,
+        DoesntShowReadiedWeapon = 32,
+        CausesPassengerDialogue = 64,
+        ResistsPings = 128,
+        MeleeAttackIsFatal = 512,
+        DontRefaceDuringPings = 1024,
+        HasNoAiming = 2048,
+        SimpleCreature = 4096,
+        ImpactMeleeAttachesToUnit = 8192,
+        ImpactMeleeDiesOnShield = 16384,
+        CannotOpenDoorsAutomatically = 32768,
+        MeleeAttackersCannotAttach = 65536,
+        NotInstantlyKilledByMelee = 131072,
+        ShieldSapping = 262144,
+        RunsAroundFlaming = 524288,
+        Inconsequential = 1048576,
+        SpecialCinematicUnit = 2097152,
+        IgnoredByAutoaiming = 4194304,
+        ShieldsFryInfectionForms = 8388608,
+        CanDualWield = 16777216,
+        ActsAsGunnerForParent = 33554432,
+        ControlledByParentGunner = 67108864,
+        ParentsPrimaryWeapon = 134217728,
+        ParentsSecondaryWeapon = 268435456,
+        UnitHasBoost = 536870912
     }
 }
 
 tag_definition! {
     #[repr(i16)]
-    pub enum UnitTeam {
+    pub enum UnitMetagameTeam {
         Default,
         Player,
         Human,
@@ -30,9 +58,10 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
-    pub enum UnitMetagameFlags {
-        None = 0
+    #[repr(i8)]
+    pub enum UnitMetagameKind {
+        Actor,
+        Vehicle
     }
 }
 
@@ -88,7 +117,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct UnitMetagameDefinition {
-        pub flags: TagEnum<u8, UnitMetagameFlags>,
+        pub unit_kind: TagEnum<u8, UnitMetagameKind>,
         pub unit_type: TagEnum<i8, UnitMetagameType>,
         pub unit_class: TagEnum<i8, UnitMetagameClass>,
         pub unknown1: i8,
@@ -204,7 +233,7 @@ tag_definition! {
 
 tag_definition! {
     #[flags, repr(u16)]
-    pub enum UnitSeatCameraFlags {
+    pub enum UnitCameraFlags {
         PitchBoundsAbsoluteSpace = 1,
         OnlyCollidesWithEnvironment = 2,
         HidesPlayerUnitFromCamera = 4,
@@ -213,26 +242,43 @@ tag_definition! {
 }
 
 tag_definition! {
+    pub struct UnitCameraAxisAcceleration {
+        pub unknown1: f32,
+        pub unknown2: f32,
+        pub unknown3: f32,
+        pub unknown4: f32,
+        pub unknown5: f32,
+        pub unknown6: f32
+    }
+}
+
+tag_definition! {
     pub struct UnitCameraAcceleration {
-        pub unknown1: u32,
-        pub unknown2: u32,
-        pub unknown3: u32,
-        pub unknown4: u32,
-        pub unknown5: u32,
-        pub unknown6: u32,
-        pub unknown7: u32,
-        pub unknown8: u32,
-        pub unknown9: u32,
-        pub unknown10: u32,
-        pub unknown11: u32,
-        pub unknown12: u32,
-        pub unknown13: u32,
-        pub unknown14: u32,
-        pub unknown15: u32,
-        pub unknown16: u32,
-        pub unknown17: u32,
-        pub unknown18: u32,
-        pub unknown19: u32
+        pub maximum_camera_velocity: f32,
+        pub axes_acceleration: [UnitCameraAxisAcceleration; 3]
+    }
+}
+
+tag_definition! {
+    pub struct UnitCamera {
+        pub camera_flags: TagEnum<u16, UnitCameraFlags>,
+        unused: TagPadding<u16>,
+        pub camera_marker_name: StringId,
+        pub camera_submerged_marker_name: StringId,
+        pub pitch_auto_level: Angle,
+        pub pitch_range: Bounds<Angle>,
+        pub camera_tracks: TagBlock<UnitCameraTrack>,
+        pub pitch_spring_bounds: Bounds<Angle>,
+        pub spring_velocity: Angle,
+        pub camera_acceleration: TagBlock<UnitCameraAcceleration>
+    }
+}
+
+tag_definition! {
+    pub struct UnitSeatAcceleration {
+        pub range: Vector3d<f32>,
+        pub action_scale: f32,
+        pub attach_scale: f32
     }
 }
 
@@ -248,9 +294,7 @@ tag_definition! {
         pub detach_weapon_string: StringId,
         pub ping_scale: f32,
         pub turnover_time: f32,
-        pub acceleration_range: Vector3d<f32>,
-        pub acceleration_action_scale: f32,
-        pub acceleration_attach_scale: f32,
+        pub seat_acceleration: UnitSeatAcceleration,
         pub ai_scariness: f32,
         pub ai_seat_type: TagEnum<i16, UnitAiSeatType>,
         pub boarding_seat: i16,
@@ -260,16 +304,7 @@ tag_definition! {
         pub pitch_interpolation_time: f32,
         pub speed_reference_bounds: Bounds<f32>,
         pub speed_exponent: f32,
-        pub camera_flags: TagEnum<u16, UnitSeatCameraFlags>,
-        unused: TagPadding<u16>,
-        pub camera_marker_name: StringId,
-        pub camera_submerged_marker_name: StringId,
-        pub pitch_auto_level: Angle,
-        pub pitch_range: Bounds<Angle>,
-        pub camera_tracks: TagBlock<UnitCameraTrack>,
-        pub pitch_spring_bounds: Bounds<Angle>,
-        pub spring_velocity: Angle,
-        pub camera_acceleration: TagBlock<UnitCameraAcceleration>,
+        pub unit_camera: UnitCamera,
         pub hud_interface: TagBlock<UnitHudInterface>,
         pub enter_seat_string: StringId,
         pub yaw_range: Bounds<Angle>,
@@ -283,12 +318,86 @@ tag_definition! {
     }
 }
 
-/*tag_definition! {
+tag_definition! {
     #[group_name = "unit", group_tag = "unit"]
     pub struct UnitDefinition {
         pub object_definition: ObjectDefinition,
-        //
-        // TODO: Add unit definition fields here
-        //
+        pub unit_flags: TagEnum<i32, UnitDefinitionFlags>,
+        pub default_team: TagEnum<i16, UnitMetagameTeam>,
+        pub constant_sound_volume: TagEnum<i16, ObjectNoiseLevel>,
+        pub hologram_unit: TagReference,
+        pub metagame_properties: TagBlock<UnitMetagameDefinition>,
+        pub integrated_light_toggle: TagReference,
+        pub camera_field_of_view: Angle,
+        pub camera_stiffness: f32,
+        pub unit_camera: UnitCamera,
+        pub sync_action_camera: UnitCamera,
+        pub assassination_start_damage_response: TagReference,
+        pub assassination_weapon: TagReference,
+        pub assassination_weapon_stow_marker: StringId,
+        pub assassination_weapon_out_marker: StringId,
+        pub assassination_weapon_anchor_marker: StringId,
+        pub seat_acceleration: UnitSeatAcceleration,
+        pub soft_ping_threshold: f32,
+        pub soft_ping_interrupt_time: f32,
+        pub hard_ping_threshold: f32,
+        pub hard_ping_interrupt_time: f32,
+        pub feign_death_threshold: f32,
+        pub feign_death_time: f32,
+        pub distance_of_evade_animation: f32,
+        pub distance_of_dive_animation: f32,
+        pub stunned_movement_threshold: f32,
+        pub feign_death_chance: f32,
+        pub feign_repeat_chance: f32,
+        pub spawned_turret_character: TagReference,
+        pub spawned_actor_count_min: i16,
+        pub spawned_actor_count_max: i16,
+        pub spawned_velocity: f32,
+        pub aiming_velocity_maximum: Angle,
+        pub aiming_acceleration_maximum: Angle,
+        pub casual_aiming_modifier: f32,
+        pub looking_velocity_maximum: Angle,
+        pub looking_acceleration_maximum: Angle,
+        pub right_hand_node: StringId,
+        pub left_hand_node: StringId,
+        pub preferred_gun_node: StringId,
+        pub melee_damage: TagReference,
+        pub boarding_melee_damage: TagReference,
+        pub boarding_melee_response: TagReference,
+        pub ejection_melee_damage: TagReference,
+        pub ejection_melee_response: TagReference,
+        pub landing_melee_damage: TagReference,
+        pub flurry_melee_damage: TagReference,
+        pub obstacle_smash_melee_damage: TagReference,
+        pub shield_pop_damage: TagReference,
+        pub assassination_damage: TagReference,
+        pub motion_sensor_blip_size: TagEnum<i16, UnitMotionSensorBlipSize>,
+        pub item_scale: TagEnum<i16, UnitItemScale>,
+        pub postures: TagBlock<UnitPosture>,
+        pub hud_interfaces: TagBlock<UnitHudInterface>,
+        pub dialogue_variants: TagBlock<UnitDialogueVariant>,
+        pub motion_tracker_range_modifier: f32,
+        pub grenade_angle: Angle,
+        pub grenade_angle_max_elevation: Angle,
+        pub grenade_angle_min_elevation: Angle,
+        pub grenade_velocity: f32,
+        pub grenade_type: TagEnum<i16, UnitGrenadeType>,
+        pub grenade_count: i16,
+        pub powered_seats: TagBlock<UnitPoweredSeat>,
+        pub weapons: TagBlock<UnitWeapon>,
+        pub target_tracking: TagBlock<UnitTargetTracking>,
+        pub seats: TagBlock<UnitSeat>,
+        pub emp_radius: f32,
+        pub emp_effect: TagReference,
+        pub boost_collision_damage: TagReference,
+        pub boost_peak_power: f32,
+        pub boost_rise_power: f32,
+        pub boost_peak_time: f32,
+        pub boost_fall_power: f32,
+        pub boost_dead_time: f32,
+        pub lipsync_attack_weight: f32,
+        pub lipsync_decay_weight: f32,
+        pub detach_damage: TagReference,
+        pub detached_weapon: TagReference
     }
-}*/
+}
