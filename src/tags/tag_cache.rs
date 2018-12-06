@@ -51,7 +51,12 @@ pub fn get_offset(tag_index: isize) -> io::Result<isize> {
         if tag_offsets.is_null() {
             Err(io::Error::new(io::ErrorKind::AddrNotAvailable, "Tag index address is null"))
         } else {
-            Ok(unsafe { *(tag_offsets.offset(tag_index)) as isize })
+            let result = unsafe { *(tag_offsets.offset(tag_index)) as isize };
+            if result <= 0 {
+                Err(io::Error::new(io::ErrorKind::AddrNotAvailable, "Tag has null offset"))
+            } else {
+                Ok(result)
+            }
         }
     } else {
         Err(io::Error::new(io::ErrorKind::NotFound, "Tag cache has no header"))
