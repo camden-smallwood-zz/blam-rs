@@ -3,18 +3,18 @@ use crate::{math::*, physics::*, tags::*, text::*, units::*};
 tag_definition! {
     #[flags, repr(i32)]
     pub enum BipedDefinitionFlags {
-		TurnsWithoutAnimating = 1 << 0,
-		PassesThroughOtherBipeds = 1 << 1,
-		ImmuneToFallingDamage = 1 << 2,
-		RotateWhileAirborne = 1 << 3,
-		UseLimpBodyPhysics = 1 << 4,
-		UnusedBit5 = 1 << 5,
-		RandomSpeedIncrease = 1 << 6,
-		UnusedBit7 = 1 << 7,
-		SpawnDeathChildrenOnDestroy = 1 << 8,
-		StunnedByEmpDamage = 1 << 9,
-		DeadPhysicsWhenStunned = 1 << 10,
-		AlwaysRagdollWhenDead = 1 << 11
+        TurnsWithoutAnimating = 1 << 0,
+        PassesThroughOtherBipeds = 1 << 1,
+        ImmuneToFallingDamage = 1 << 2,
+        RotateWhileAirborne = 1 << 3,
+        UseLimpBodyPhysics = 1 << 4,
+        UnusedBit5 = 1 << 5,
+        RandomSpeedIncrease = 1 << 6,
+        UnusedBit7 = 1 << 7,
+        SpawnDeathChildrenOnDestroy = 1 << 8,
+        StunnedByEmpDamage = 1 << 9,
+        DeadPhysicsWhenStunned = 1 << 10,
+        AlwaysRagdollWhenDead = 1 << 11
     }
 }
 
