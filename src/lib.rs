@@ -1,3 +1,5 @@
+#![feature(const_str_as_bytes, const_transmute)]
+
 extern crate memmap;
 
 #[macro_use]

@@ -15,9 +15,6 @@ macro_rules! tag_definition_impl {
 macro_rules! tag_enum_impl {
     ($enum_name:ident, $base_type:ident) => {
         tag_definition_impl!($enum_name);
-        impl TagEnumDefinition for $enum_name {
-            type BaseType = $base_type;
-        }
         impl From<$base_type> for $enum_name {
             fn from(value: $base_type) -> $enum_name {
                 assert!(std::mem::size_of::<$base_type>() == std::mem::size_of::<$enum_name>());
@@ -49,18 +46,32 @@ macro_rules! tag_definition {
     (
         #[repr($base_type:ident)]
         $enum_vis:vis enum $enum_name:ident {
-            $($item_name:ident),*
+            $($option_name:ident),*
         }
     ) => {
         #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
-            $($item_name,)*
+            $($option_name,)*
         }
+        
         tag_enum_impl!($enum_name, $base_type);
+
+        impl TagEnumDefinition for $enum_name {
+            type BaseType = $base_type;
+            const OPTIONS: &'static [TagEnumOption<$base_type>] = &[
+                $(
+                    TagEnumOption {
+                        name: stringify!($option_name),
+                        value: unsafe { std::mem::transmute::<$enum_name, $base_type>($enum_name::$option_name) }
+                    },
+                )*
+            ];
+        }
+
         impl std::fmt::Display for $enum_name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "{}", match *self { $($enum_name::$item_name => stringify!($item_name),)* })
+                write!(f, "{}", match *self { $($enum_name::$option_name => stringify!($option_name),)* })
             }
         }
     };
@@ -68,18 +79,32 @@ macro_rules! tag_definition {
     (
         #[flags, repr($base_type:ident)]
         $enum_vis:vis enum $enum_name:ident {
-            $($item_name:ident = $item_value_expr:expr),*
+            $($option_name:ident = $option_value_expr:expr),*
         }
     ) => {
         #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
-            $($item_name = $item_value_expr as $base_type,)*
+            $($option_name = $option_value_expr as $base_type,)*
         }
+        
         tag_enum_impl!($enum_name, $base_type);
+
+        impl TagEnumDefinition for $enum_name {
+            type BaseType = $base_type;
+            const OPTIONS: &'static [TagEnumOption<$base_type>] = &[
+                $(
+                    TagEnumOption {
+                        name: stringify!($option_name),
+                        value: unsafe { std::mem::transmute::<$enum_name, $base_type>($enum_name::$option_name) }
+                    },
+                )*
+            ];
+        }
+
         impl std::fmt::Display for $enum_name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "{}", match *self { $($enum_name::$item_name => stringify!($item_name),)* })
+                write!(f, "{}", match *self { $($enum_name::$option_name => stringify!($option_name),)* })
             }
         }
     };
@@ -92,17 +117,18 @@ macro_rules! tag_definition {
         $struct_vis struct $struct_name {
             $($field_vis $field_name: $field_type,)*
         }
+
         tag_definition_impl!($struct_name);
+
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name).to_string(),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*]
-            }
+            const FIELDS: &'static [TagFieldInfo] = &[
+                $(
+                    TagFieldInfo {
+                        name: stringify!($field_name),
+                        field: tag_field_impl!($field_type)
+                    },
+                )*
+            ];
         }
     };
 
@@ -115,17 +141,18 @@ macro_rules! tag_definition {
             pub base: $base_type,
             $($field_vis $field_name: $field_type,)*
         }
+        
         tag_definition_impl!($struct_name);
+
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name).to_string(),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*]
-            }
+            const FIELDS: &'static [TagFieldInfo] = &[
+                $(
+                    TagFieldInfo {
+                        name: stringify!($field_name),
+                        field: tag_field_impl!($field_type)
+                    },
+                )*
+            ];
         }
     };
 
@@ -144,20 +171,19 @@ macro_rules! tag_definition {
         tag_definition_impl!($struct_name);
         
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name).to_string(),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*]
-            }
+            const FIELDS: &'static [TagFieldInfo] = &[
+                $(
+                    TagFieldInfo {
+                        name: stringify!($field_name),
+                        field: tag_field_impl!($field_type)
+                    },
+                )*
+            ];
         }
 
         impl TagGroupDefinition for $struct_name {
-            fn get_group_name() -> String { $group_name_expr.to_string() }
-            fn get_group_tag() -> Tag { Tag::from($group_tag_expr) }
+            const GROUP_NAME: &'static str = $group_name_expr;
+            const GROUP_TAG: Tag = Tag::from_str($group_tag_expr);
         }
     };
     
@@ -177,20 +203,19 @@ macro_rules! tag_definition {
         tag_definition_impl!($struct_name);
         
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name).to_string(),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*]
-            }
+            const FIELDS: &'static [TagFieldInfo] = &[
+                $(
+                    TagFieldInfo {
+                        name: stringify!($field_name),
+                        field: tag_field_impl!($field_type)
+                    },
+                )*
+            ];
         }
 
         impl TagGroupDefinition for $struct_name {
-            fn get_group_name() -> String { $group_name_expr.to_string() }
-            fn get_group_tag() -> Tag { Tag::from($group_tag_expr) }
+            const GROUP_NAME: &'static str = $group_name_expr;
+            const GROUP_TAG: Tag = Tag::from_str($group_tag_expr);
         }
     };
     

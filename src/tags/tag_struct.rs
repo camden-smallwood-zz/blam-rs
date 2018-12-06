@@ -1,5 +1,6 @@
 use crate::tags::TagDefinition;
 
+#[derive(Debug)]
 pub enum TagField {
     Tag,
     String,
@@ -47,10 +48,10 @@ pub enum TagField {
 }
 
 pub struct TagFieldInfo {
-    pub name: String,
+    pub name: &'static str,
     pub field: TagField
 }
 
 pub trait TagStructDefinition: TagDefinition {
-    fn get_fields() -> Vec<TagFieldInfo>;
+    const FIELDS: &'static [TagFieldInfo];
 }
