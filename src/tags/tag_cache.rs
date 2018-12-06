@@ -1,5 +1,5 @@
 use memmap::MmapMut;
-use std::fs::OpenOptions;
+use std::{fs::OpenOptions, io};
 use crate::tags::{TagGroupDefinition, TagInstance};
 
 #[repr(C)]
@@ -13,81 +13,71 @@ pub struct TagCacheHeader {
     unused3: u64
 }
 
-pub struct TagCache {
-    pub mmap: MmapMut
+static mut MMAP: Option<MmapMut> = None;
+
+pub fn open(path: &str) -> io::Result<()> {
+    let file = OpenOptions::new().read(true).write(true).open(path)?;
+    if let Ok(result) = unsafe { MmapMut::map_mut(&file) } {
+        unsafe { MMAP = Some(result); }
+        Ok(())
+    } else {
+        Err(io::Error::new(io::ErrorKind::InvalidData, format!("Failed to map \"{}\"", path).as_str()))
+    }
 }
 
-impl<'a> TagCache {
-    pub fn open(path: &str) -> TagCache {
-        let file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(path)
-            .expect(format!("Failed to open \"{}\"", path).as_str());
-        TagCache {
-            mmap: unsafe { MmapMut::map_mut(&file).expect(format!("Failed to map \"{}\"", path).as_str()) }
-        }
+pub fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
+    if let &Some(ref mmap) = unsafe { &MMAP } {
+        Ok(unsafe { mmap.as_ptr().offset(offset) as *const T })
+    } else {
+        Err(io::Error::new(io::ErrorKind::Other, "Tag cache not loaded"))
     }
+}
 
-    pub fn get_header(&'a self) -> Option<&'a TagCacheHeader> {
-        unsafe { (self.mmap.as_ptr() as *const TagCacheHeader).as_ref() }
+pub fn get_mut_ptr<T>(offset: isize) -> io::Result<*mut T> {
+    if let &mut Some(ref mut mmap) = unsafe { &mut MMAP } {
+        Ok(unsafe { mmap.as_mut_ptr().offset(offset) as *mut T })
+    } else {
+        Err(io::Error::new(io::ErrorKind::Other, "Tag cache not loaded"))
     }
+}
 
-    pub fn get_instance_count(&'a self) -> i32 {
-        self.get_header().unwrap().instance_count
-    }
+pub fn get_header<'a>() -> io::Result<Option<&'a TagCacheHeader>> {
+    Ok(unsafe { self::get_ptr::<TagCacheHeader>(0)?.as_ref() })
+}
 
-    pub fn get_instance_offset(&self, tag_index: isize) -> isize {
-        let header = self.get_header().unwrap();
-
-        let tag_offsets: *const i32 = unsafe {
-            self.mmap.as_ptr().offset(header.index_offset as isize) as *const i32
-        };
-
+pub fn get_offset(tag_index: isize) -> io::Result<isize> {
+    if let Some(ref header) = self::get_header()? {
+        let tag_offsets = self::get_ptr::<i32>(header.index_offset as isize)?;
         if tag_offsets.is_null() {
-            -1
+            Err(io::Error::new(io::ErrorKind::AddrNotAvailable, "Tag index address is null"))
         } else {
-            unsafe { *tag_offsets.offset(tag_index) as isize }
+            Ok(unsafe { *(tag_offsets.offset(tag_index)) as isize })
         }
+    } else {
+        Err(io::Error::new(io::ErrorKind::NotFound, "Tag cache has no header"))
     }
+}
 
-    pub fn get_instance_ptr<T>(&self, tag_index: isize, offset: isize) -> *const T {
-        let tag_offset = self.get_instance_offset(tag_index);
-        if tag_offset <= 0 {
-            std::ptr::null()
-        } else {
-            unsafe { self.mmap.as_ptr().offset(tag_offset + offset) as *const T }
-        }
+pub fn get_instance<'a>(tag_index: isize) -> io::Result<Option<&'a TagInstance>> {
+    Ok(unsafe { self::get_ptr::<TagInstance>(self::get_offset(tag_index)?)?.as_ref() })
+}
+
+pub fn get_instance_mut<'a>(tag_index: isize) -> io::Result<Option<&'a mut TagInstance>> {
+    Ok(unsafe { self::get_mut_ptr::<TagInstance>(self::get_offset(tag_index)?)?.as_mut() })
+}
+
+pub fn get_definition<'a, T: TagGroupDefinition>(tag_index: isize) -> io::Result<Option<&'a T>> {
+    if let Some(ref instance) = self::get_instance(tag_index)? {
+        Ok(unsafe { self::get_ptr::<T>(self::get_offset(tag_index)? + instance.definition_offset as isize)?.as_ref() })
+    } else {
+        Err(io::Error::new(io::ErrorKind::NotFound, format!("Tag index 0x{:X} is null", tag_index).to_string()))
     }
+}
 
-    pub fn get_instance_mut_ptr<T>(&mut self, tag_index: isize, offset: isize) -> *mut T {
-        let tag_offset = self.get_instance_offset(tag_index);
-        if tag_offset <= 0 {
-            std::ptr::null_mut()
-        } else {
-            unsafe { self.mmap.as_mut_ptr().offset(tag_offset + offset) as *mut T }
-        }
-    }
-
-    pub fn get_instance(&'a self, tag_index: isize) -> Option<&'a TagInstance> {
-        unsafe { self.get_instance_ptr::<TagInstance>(tag_index, 0).as_ref() }
-    }
-
-    pub fn get_instance_mut(&'a mut self, tag_index: isize) -> Option<&'a mut TagInstance> {
-        unsafe { self.get_instance_mut_ptr::<TagInstance>(tag_index, 0).as_mut() }
-    }
-
-    pub fn get_definition<T: TagGroupDefinition>(&'a self, tag_index: isize) -> Option<&'a T> {
-        unsafe {
-            let tag_instance = self.get_instance(tag_index).unwrap();
-            self.get_instance_ptr::<T>(tag_index, tag_instance.definition_offset as isize).as_ref()
-        }
-    }
-
-    pub fn get_definition_mut<T: TagGroupDefinition>(&'a mut self, tag_index: isize) -> Option<&'a mut T> {
-        unsafe {
-            let tag_instance = self.get_instance(tag_index).unwrap();
-            self.get_instance_mut_ptr::<T>(tag_index, tag_instance.definition_offset as isize).as_mut()
-        }
+pub fn get_definition_mut<'a, T: TagGroupDefinition>(tag_index: isize) -> io::Result<Option<&'a mut T>> {
+    if let Some(ref instance) = self::get_instance(tag_index)? {
+        Ok(unsafe { self::get_mut_ptr::<T>(self::get_offset(tag_index)? + instance.definition_offset as isize)?.as_mut() })
+    } else {
+        Err(io::Error::new(io::ErrorKind::NotFound, format!("Tag index 0x{:X} is null", tag_index).to_string()))
     }
 }
