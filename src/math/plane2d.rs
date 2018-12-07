@@ -1,6 +1,7 @@
 use crate::math::Vector2d;
 
-#[repr(C, packed)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Plane2d<T> {
     pub normal: Vector2d<T>,
     pub distance: T

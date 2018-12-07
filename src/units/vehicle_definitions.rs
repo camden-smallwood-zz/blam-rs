@@ -164,13 +164,35 @@ tag_definition! {
 
 tag_definition! {
     pub struct VehicleAlienFighterPhysics {
-        // TODO: define VehicleAlienFighterPhysics
+        pub steering_control: VehicleSteeringControl,
+        pub turning_control: VehicleTurningControl,
+        pub maximum_forward_speed: f32,
+        pub maximum_reverse_speed: f32,
+        pub speed_acceleration: f32,
+        pub speed_deceleration: f32,
+        pub maximum_left_slide: f32,
+        pub maximum_right_slide: f32,
+        pub slide_acceleration: f32,
+        pub slide_deceleration: f32,
+        pub slide_accel_against_direction: f32,
+        pub flying_torque_scale: f32,
+        pub fixed_gun_offset: Angles2d,
+        pub loop_trick_duration: f32,
+        pub roll_trick_duration: f32,
+        pub zero_gravity_speed: f32,
+        pub full_gravity_speed: f32,
+        pub strafe_boost_scale: f32,
+        pub off_stick_decel_scale: f32,
+        pub cruising_throttle: f32,
+        pub dive_speed_scale: f32,
+        unused: TagPadding<u32>
     }
 }
 
 tag_definition! {
     pub struct VehicleTurretPhysics {
-        // TODO: define VehicleTurretPhysics
+        unknown1: f32,
+        unknown2: f32
     }
 }
 
@@ -182,19 +204,71 @@ tag_definition! {
 
 tag_definition! {
     pub struct VehicleVtolPhysics {
-        // TODO: define VehicleVtolPhysics
+        pub turning_control: VehicleTurningControl,
+        pub left_lift_marker: StringId,
+        pub right_lift_marker: StringId,
+        pub thrust_marker: StringId,
+        unknown1: f32,
+        unknown2: f32,
+        unknown3: f32,
+        unknown4: f32,
+        unknown5: f32,
+        unknown6: f32,
+        unknown7: f32,
+        unknown8: f32,
+        unknown9: f32,
+        unknown10: f32,
+        unknown11: f32,
+        unknown12: f32,
+        unknown13: f32,
+        unknown14: f32,
+        unknown15: f32,
+        unknown16: f32,
+        unknown17: f32,
+        unknown18: f32,
+        unknown19: f32,
+        unknown20: f32,
+        unknown21: f32,
+        unknown22: f32,
+        unknown23: f32
     }
 }
 
 tag_definition! {
     pub struct VehicleChopperPhysics {
-        // TODO: define VehicleChopperPhysics
+        pub steering_control: VehicleSteeringControl,
+        pub turning_control: VehicleTurningControl,
+        pub engine: VehicleEngine,
+        pub wheel_circumference: f32,
+        pub rotation_marker: StringId,
+        pub magic_turning_scale: f32,
+        pub magic_turning_acceleration: f32,
+        pub magic_turning_maximum_velocity: f32,
+        pub magic_turning_exponent: f32,
+        pub bank_to_slide_ratio: f32,
+        pub bank_slide_exponent: f32,
+        pub bank_to_turn_ratio: f32,
+        pub bank_turn_exponent: f32,
+        pub bank_fraction: f32,
+        pub bank_rate: f32,
+        pub wheel_acceleration: f32,
+        pub gyroscopic_damping: f32
     }
 }
 
 tag_definition! {
     pub struct VehicleGuardianPhysics {
-        // TODO: define VehicleGuardianPhysics
+        pub steering_control: VehicleSteeringControl,
+        pub maximum_forward_speed: f32,
+        pub maximum_reverse_speed: f32,
+        pub speed_acceleration: f32,
+        pub speed_deceleration: f32,
+        pub maximum_left_slide: f32,
+        pub maximum_right_slide: f32,
+        pub slide_acceleration: f32,
+        pub slide_deceleration: f32,
+        pub torque_scale: f32,
+        pub anti_gravity_force_z_offset: f32
     }
 }
 

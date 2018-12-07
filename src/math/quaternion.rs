@@ -1,4 +1,5 @@
-#[repr(C, packed)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Quaternion<T> {
     pub i: T,
     pub j: T,

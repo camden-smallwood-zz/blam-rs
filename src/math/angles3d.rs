@@ -1,6 +1,6 @@
 use crate::math::Angle;
 
-#[repr(C, packed)]
+#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angles3d {
     pub yaw: Angle,

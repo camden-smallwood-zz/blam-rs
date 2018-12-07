@@ -1,4 +1,5 @@
-#[repr(C, packed)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct ColorArgb<T> {
     pub alpha: T,
     pub red: T,

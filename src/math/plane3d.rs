@@ -1,6 +1,7 @@
 use crate::math::Vector3d;
 
-#[repr(C, packed)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Plane3d<T> {
     pub normal: Vector3d<T>,
     pub distance: T

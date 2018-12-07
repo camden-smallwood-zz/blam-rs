@@ -1,4 +1,5 @@
-#[repr(C, packed)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Point2d<T> {
     pub x: T,
     pub y: T
