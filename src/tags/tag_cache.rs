@@ -26,7 +26,7 @@ pub fn open(path: &str) -> io::Result<()> {
 }
 
 pub fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
-    if let &Some(ref mmap) = unsafe { &MMAP } {
+    if let Some(mmap) = unsafe { &MMAP } {
         Ok(unsafe { mmap.as_ptr().offset(offset) as *const T })
     } else {
         Err(io::Error::new(io::ErrorKind::Other, "Tag cache not loaded"))
@@ -34,7 +34,7 @@ pub fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
 }
 
 pub fn get_mut_ptr<T>(offset: isize) -> io::Result<*mut T> {
-    if let &mut Some(ref mut mmap) = unsafe { &mut MMAP } {
+    if let Some(mmap) = unsafe { &mut MMAP } {
         Ok(unsafe { mmap.as_mut_ptr().offset(offset) as *mut T })
     } else {
         Err(io::Error::new(io::ErrorKind::Other, "Tag cache not loaded"))

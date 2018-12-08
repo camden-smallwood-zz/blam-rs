@@ -3,35 +3,35 @@ use crate::{math::*, objects::*, tags::*, text::*};
 tag_definition! {
     #[flags, repr(i32)]
     pub enum UnitDefinitionFlags {
-        CircularAiming = 1,
-        DestroyedAfterDying = 2,
-        HalfSpeedInterpolation = 4,
-        FiresFromCamera = 8,
-        EntranceInsideBoundingSphere = 16,
-        DoesntShowReadiedWeapon = 32,
-        CausesPassengerDialogue = 64,
-        ResistsPings = 128,
-        MeleeAttackIsFatal = 512,
-        DontRefaceDuringPings = 1024,
-        HasNoAiming = 2048,
-        SimpleCreature = 4096,
-        ImpactMeleeAttachesToUnit = 8192,
-        ImpactMeleeDiesOnShield = 16384,
-        CannotOpenDoorsAutomatically = 32768,
-        MeleeAttackersCannotAttach = 65536,
-        NotInstantlyKilledByMelee = 131072,
-        ShieldSapping = 262144,
-        RunsAroundFlaming = 524288,
-        Inconsequential = 1048576,
-        SpecialCinematicUnit = 2097152,
-        IgnoredByAutoaiming = 4194304,
-        ShieldsFryInfectionForms = 8388608,
-        CanDualWield = 16777216,
-        ActsAsGunnerForParent = 33554432,
-        ControlledByParentGunner = 67108864,
-        ParentsPrimaryWeapon = 134217728,
-        ParentsSecondaryWeapon = 268435456,
-        UnitHasBoost = 536870912
+        CircularAiming = 1 << 0,
+        DestroyedAfterDying = 1 << 1,
+        HalfSpeedInterpolation = 1 << 2,
+        FiresFromCamera = 1 << 3,
+        EntranceInsideBoundingSphere = 1 << 4,
+        DoesntShowReadiedWeapon = 1 << 5,
+        CausesPassengerDialogue = 1 << 6,
+        ResistsPings = 1 << 7,
+        MeleeAttackIsFatal = 1 << 8,
+        DontRefaceDuringPings = 1 << 9,
+        HasNoAiming = 1 << 10,
+        SimpleCreature = 1 << 11,
+        ImpactMeleeAttachesToUnit = 1 << 12,
+        ImpactMeleeDiesOnShield = 1 << 13,
+        CannotOpenDoorsAutomatically = 1 << 14,
+        MeleeAttackersCannotAttach = 1 << 15,
+        NotInstantlyKilledByMelee = 1 << 16,
+        ShieldSapping = 1 << 17,
+        RunsAroundFlaming = 1 << 18,
+        Inconsequential = 1 << 19,
+        SpecialCinematicUnit = 1 << 20,
+        IgnoredByAutoaiming = 1 << 21,
+        ShieldsFryInfectionForms = 1 << 22,
+        CanDualWield = 1 << 23,
+        ActsAsGunnerForParent = 1 << 24,
+        ControlledByParentGunner = 1 << 25,
+        ParentsPrimaryWeapon = 1 << 26,
+        ParentsSecondaryWeapon = 1 << 27,
+        UnitHasBoost = 1 << 28
     }
 }
 
@@ -256,10 +256,10 @@ tag_definition! {
 tag_definition! {
     #[flags, repr(u16)]
     pub enum UnitCameraFlags {
-        PitchBoundsAbsoluteSpace = 1,
-        OnlyCollidesWithEnvironment = 2,
-        HidesPlayerUnitFromCamera = 4,
-        UseAimingVectorInsteadOfMarkerForward = 8
+        PitchBoundsAbsoluteSpace = 1 << 0,
+        OnlyCollidesWithEnvironment = 1 << 1,
+        HidesPlayerUnitFromCamera = 1 << 2,
+        UseAimingVectorInsteadOfMarkerForward = 1 << 3
     }
 }
 

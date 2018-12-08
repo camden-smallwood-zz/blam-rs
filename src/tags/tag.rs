@@ -5,7 +5,8 @@ use std::{mem, str, string::ToString};
 pub struct Tag(pub i32);
 
 impl Tag {
-    pub const fn from_str<'a>(v: &'a str) -> Tag {
+    #[allow(clippy::cast_lossless)]
+    pub const fn from_str_const(v: &'static str) -> Tag {
         Tag(((v.as_bytes()[0] as i32) << 24) |
             ((v.as_bytes()[1] as i32) << 16) |
             ((v.as_bytes()[2] as i32) << 8) |

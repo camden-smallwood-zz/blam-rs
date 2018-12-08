@@ -49,6 +49,7 @@ macro_rules! tag_definition {
             $($option_name:ident),*
         }
     ) => {
+        #[allow(clippy::identity_op)]
         #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
@@ -82,6 +83,7 @@ macro_rules! tag_definition {
             $($option_name:ident = $option_value_expr:expr),*
         }
     ) => {
+        #[allow(clippy::identity_op)]
         #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
@@ -183,7 +185,7 @@ macro_rules! tag_definition {
 
         impl TagGroupDefinition for $struct_name {
             const GROUP_NAME: &'static str = $group_name_expr;
-            const GROUP_TAG: Tag = Tag::from_str($group_tag_expr);
+            const GROUP_TAG: Tag = Tag::from_str_const($group_tag_expr);
         }
     };
     
@@ -215,7 +217,7 @@ macro_rules! tag_definition {
 
         impl TagGroupDefinition for $struct_name {
             const GROUP_NAME: &'static str = $group_name_expr;
-            const GROUP_TAG: Tag = Tag::from_str($group_tag_expr);
+            const GROUP_TAG: Tag = Tag::from_str_const($group_tag_expr);
         }
     };
     
