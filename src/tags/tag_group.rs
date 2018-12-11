@@ -25,3 +25,12 @@ impl TagGroup {
         self.group_tags[2]
     }
 }
+
+impl Default for TagGroup {
+    fn default() -> Self {
+        Self {
+            group_tags: [Default::default(), Default::default(), Default::default()],
+            group_name: Default::default()
+        }
+    }
+}

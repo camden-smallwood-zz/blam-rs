@@ -5,3 +5,11 @@ use crate::tags::TagData;
 pub struct TagFunction {
     pub data: TagData
 }
+
+impl Default for TagFunction {
+    fn default() -> Self {
+        Self {
+            data: Default::default()
+        }
+    }
+}

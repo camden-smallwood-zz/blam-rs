@@ -9,3 +9,14 @@ pub struct TagBlock<T: TagDefinition> {
     unused: u32,
     phantom: PhantomData<T>
 }
+
+impl<T: TagDefinition> Default for TagBlock<T> {
+    fn default() -> Self {
+        Self {
+            count: 0,
+            address: 0,
+            unused: 0,
+            phantom: PhantomData
+        }
+    }
+}

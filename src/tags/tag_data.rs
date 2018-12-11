@@ -7,3 +7,15 @@ pub struct TagData {
     pub address: u32,
     unused3: u32
 }
+
+impl Default for TagData {
+    fn default() -> Self {
+        Self {
+            size: 0,
+            unused1: 0,
+            unused2: 0,
+            address: 0,
+            unused3: 0
+        }
+    }
+}

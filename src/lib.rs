@@ -1,8 +1,7 @@
-extern crate memmap;
-
 #[macro_use]
 pub mod tags;
 
+pub mod io;
 pub mod items;
 pub mod math;
 pub mod models;

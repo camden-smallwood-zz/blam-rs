@@ -4,6 +4,12 @@ use std::{mem, str, string::ToString};
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Tag(pub i32);
 
+impl Default for Tag {
+    fn default() -> Self {
+        Tag(-1)
+    }
+}
+
 impl ToString for Tag {
     fn to_string(&self) -> String {
         let &Tag(value) = self;
