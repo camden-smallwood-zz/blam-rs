@@ -14,6 +14,7 @@ impl ToString for Tag {
     }
 }
 
+#[allow(clippy::cast_lossless)]
 impl From<&'static str> for Tag {
     fn from(value: &'static str) -> Tag {
         let b = value.as_bytes();
