@@ -1,7 +1,7 @@
 use crate::{objects::*, tags::*};
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum CrateDefinitionFlags {
         DoesNotBlockAreaOfEffect = 1 << 0,
         AttachTextureCameraHack = 1 << 1,
@@ -25,7 +25,7 @@ tag_definition! {
 tag_definition! {
     #[group_name = "crate", group_tag = "bloc"]
     pub struct CrateDefinition : ObjectDefinition {
-        pub crate_flags: TagEnum<u16, CrateDefinitionFlags>,
+        pub crate_flags: TagFlags<u16, CrateDefinitionFlags>,
         unused1: TagPadding<u16>,
         unused2: TagPadding<[u32; 3]>,
         unused3: TagPadding<[u8; 4]>

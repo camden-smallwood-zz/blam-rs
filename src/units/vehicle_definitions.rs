@@ -1,7 +1,7 @@
 use crate::{math::*, models::*, physics::*, tags::*, text::*, units::*};
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum VehicleDefinitionFlags {
         NoFrictionWithDriver = 1 << 0,
         CanTriggerAutomaticOpeningDoors = 1 << 1,
@@ -123,7 +123,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum VehicleAlienScoutFlags {
         LockedCamera = 1 << 0
     }
@@ -150,7 +150,7 @@ tag_definition! {
         pub maximum_right_slide: f32,
         pub slide_acceleration: f32,
         pub slide_deceleration: f32,
-        pub flags: TagEnum<u8, VehicleAlienScoutFlags>,
+        pub flags: TagFlags<u8, VehicleAlienScoutFlags>,
         unused: TagPadding<[u8; 3]>,
         pub drag_coeficient: f32,
         pub constant_deceleration: f32,
@@ -288,7 +288,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum HavokVehiclePhysicsFlags {
         HasSuspension = 1 << 0,
         FrictionPointsTestOnlyEnvironments = 1 << 1
@@ -296,7 +296,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum VehicleAntiGravityPointFlags {
         GetsDamageFromRegion = 1 << 0,
         OnlyActiveOnWater = 1 << 1
@@ -306,7 +306,7 @@ tag_definition! {
 tag_definition! {
     pub struct VehicleAntiGravityPoint {
         pub marker_name: StringId,
-        pub flags: TagEnum<i32, VehicleAntiGravityPointFlags>,
+        pub flags: TagFlags<i32, VehicleAntiGravityPointFlags>,
         pub antigrav_strength: f32,
         pub antigrav_height: f32,
         pub antigrav_damp_factor: f32,
@@ -327,7 +327,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum VehicleFrictionPointFlags {
         GetsDamageFromRegion = 1 << 0,
         Powered = 1 << 1,
@@ -339,7 +339,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum VehicleFrictionPointType {
         Point,
         Forward
@@ -349,7 +348,7 @@ tag_definition! {
 tag_definition! {
     pub struct VehicleFrictionPoint {
         pub marker_name: StringId,
-        pub flags: TagEnum<i32, VehicleFrictionPointFlags>,
+        pub flags: TagFlags<i32, VehicleFrictionPointFlags>,
         pub fraction_of_total_mass: f32,
         pub radius: f32,
         pub damaged_radius: f32,
@@ -374,7 +373,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct HavokVehiclePhysics {
-        pub flags: TagEnum<i32, HavokVehiclePhysicsFlags>,
+        pub flags: TagFlags<i32, HavokVehiclePhysicsFlags>,
         pub ground_friction: f32,
         pub ground_depth: f32,
         pub ground_damp_factor: f32,
@@ -396,7 +395,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum VehiclePlayerTrainingType {
         None,
         Warthog,
@@ -409,7 +407,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum VehicleSize {
         Small,
         Large
@@ -419,7 +416,7 @@ tag_definition! {
 tag_definition! {
     #[group_name = "vehicle", group_tag = "vehi"]
     pub struct VehicleDefinition : UnitDefinition {
-        pub vehicle_flags: TagEnum<i32, VehicleDefinitionFlags>,
+        pub vehicle_flags: TagFlags<i32, VehicleDefinitionFlags>,
         pub physics_types: VehiclePhysicsTypes,
         pub havok_vehicle_physics: HavokVehiclePhysics,
         pub player_training_vehicle_type: TagEnum<i8, VehiclePlayerTrainingType>,

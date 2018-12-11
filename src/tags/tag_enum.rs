@@ -1,14 +1,13 @@
 use std::marker::PhantomData;
 use crate::tags::TagDefinition;
 
-pub struct TagEnumOption<T> {
+pub struct TagEnumOption {
     pub name: &'static str,
-    pub value: T
+    pub value: isize
 }
 
 pub trait TagEnumDefinition: TagDefinition {
-    type BaseType: 'static;
-    fn get_options() -> Vec<TagEnumOption<Self::BaseType>>;
+    fn get_options() -> Vec<TagEnumOption>;
 }
 
 #[repr(C)]

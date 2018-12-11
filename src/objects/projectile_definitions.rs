@@ -1,7 +1,7 @@
 use crate::{math::*, objects::*, tags::*, text::*};
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ProjectileDefinitionFlags {
         OrientedAlongVelocity = 1 << 0,
         AiMustUseBallisticAiming = 1 << 1,
@@ -18,7 +18,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ProjectileDetonationTimerStart {
         Immediately,
         AfterFirstBounce,
@@ -28,14 +27,13 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum ProjectileMaterialFlags {
         CannotBeOverpenetrated = 1 << 0
     }
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ProjectileMaterialResponseType {
         ImpactDetonate,
         Fizzle,
@@ -48,7 +46,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum ProjectileMaterialResponseFlags {
         OnlyAgainstUnits = 1 << 0,
         NeverAgainstUnits = 1 << 1,
@@ -65,7 +63,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ProjectileMaterialResponseEffectScale {
         Damage,
         Angle
@@ -74,13 +71,13 @@ tag_definition! {
 
 tag_definition! {
     pub struct ProjectileMaterialResponse {
-        pub material_flags: TagEnum<u16, ProjectileMaterialFlags>,
+        pub material_flags: TagFlags<u16, ProjectileMaterialFlags>,
         pub default_response: TagEnum<i16, ProjectileMaterialResponseType>,
         pub material_name: StringId,
         pub global_material_index: i16,
         unused1: TagPadding<u16>,
         pub potential_response: TagEnum<i16, ProjectileMaterialResponseType>,
-        pub response_flags: TagEnum<u16, ProjectileMaterialResponseFlags>,
+        pub response_flags: TagFlags<u16, ProjectileMaterialResponseFlags>,
         pub chance_fraction: f32,
         pub between_angle: Bounds<Angle>,
         pub and_velocity: Bounds<f32>,
@@ -129,7 +126,7 @@ tag_definition! {
 tag_definition! {
     #[group_name = "projectile", group_tag = "proj"]
     pub struct ProjectileDefinition : ObjectDefinition {
-        pub projectile_flags: TagEnum<i32, ProjectileDefinitionFlags>,
+        pub projectile_flags: TagFlags<i32, ProjectileDefinitionFlags>,
         pub detonation_timer_starts: TagEnum<i16, ProjectileDetonationTimerStart>,
         pub impact_noise: TagEnum<i16, ObjectNoiseLevel>,
         pub collision_radius: f32,

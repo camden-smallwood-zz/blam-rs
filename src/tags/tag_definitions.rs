@@ -12,29 +12,6 @@ macro_rules! tag_definition_impl {
     }
 }
 
-macro_rules! tag_enum_impl {
-    ($enum_name:ident, $base_type:ident) => {
-        tag_definition_impl!($enum_name);
-        impl From<$base_type> for $enum_name {
-            fn from(value: $base_type) -> $enum_name {
-                assert!(std::mem::size_of::<$base_type>() == std::mem::size_of::<$enum_name>());
-                unsafe { std::mem::transmute(value) }
-            }
-        }
-        impl<> From<TagEnum<$base_type, $enum_name>> for $enum_name {
-            fn from(value: TagEnum<$base_type, $enum_name>) -> $enum_name {
-                assert!(std::mem::size_of::<$base_type>() == std::mem::size_of::<$enum_name>());
-                unsafe { std::mem::transmute(value.0) }
-            }
-        }
-        impl<> TagEnum<$base_type, $enum_name> {
-            pub fn unwrap(self) -> $enum_name {
-                self.into()
-            }
-        }
-    }
-}
-
 macro_rules! tag_field_impl {
     ($field_type:ty) => {
         TagField::Undefined
@@ -44,34 +21,29 @@ macro_rules! tag_field_impl {
 #[macro_export]
 macro_rules! tag_definition {
     (
-        #[repr($base_type:ident)]
         $enum_vis:vis enum $enum_name:ident {
             $($option_name:ident),*
         }
     ) => {
+        #[repr(C)]
         #[allow(clippy::identity_op)]
-        #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
             $($option_name,)*
         }
-        
-        tag_enum_impl!($enum_name, $base_type);
-
+        tag_definition_impl!($enum_name);
         impl TagEnumDefinition for $enum_name {
-            type BaseType = $base_type;
-            fn get_options() -> Vec<TagEnumOption<$base_type>> {
+            fn get_options() -> Vec<TagEnumOption> {
                 vec![
                     $(
                         TagEnumOption {
                             name: stringify!($option_name),
-                            value: unsafe { std::mem::transmute::<$enum_name, $base_type>($enum_name::$option_name) }
+                            value: $enum_name::$option_name as isize
                         },
                     )*
                 ]
             }
         }
-
         impl std::fmt::Display for $enum_name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 write!(f, "{}", match *self { $($enum_name::$option_name => stringify!($option_name),)* })
@@ -80,34 +52,30 @@ macro_rules! tag_definition {
     };
 
     (
-        #[flags, repr($base_type:ident)]
+        #[repr(flags)]
         $enum_vis:vis enum $enum_name:ident {
-            $($option_name:ident = $option_value_expr:expr),*
+            $($option_name:ident = 1 << $bit_index_expr:expr),*
         }
     ) => {
+        #[repr(C)]
         #[allow(clippy::identity_op)]
-        #[repr($base_type)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
-            $($option_name = $option_value_expr as $base_type,)*
+            $($option_name = 1 << $bit_index_expr,)*
         }
-        
-        tag_enum_impl!($enum_name, $base_type);
-
-        impl TagEnumDefinition for $enum_name {
-            type BaseType = $base_type;
-            fn get_options() -> Vec<TagEnumOption<$base_type>> {
+        tag_definition_impl!($enum_name);
+        impl TagFlagsDefinition for $enum_name {
+            fn get_bits() -> Vec<TagFlagsBit> {
                 vec![
                     $(
-                        TagEnumOption {
+                        TagFlagsBit {
                             name: stringify!($option_name),
-                            value: unsafe { std::mem::transmute::<$enum_name, $base_type>($enum_name::$option_name) }
+                            value: 1 << $bit_index_expr
                         },
                     )*
                 ]
             }
         }
-
         impl std::fmt::Display for $enum_name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 write!(f, "{}", match *self { $($enum_name::$option_name => stringify!($option_name),)* })
@@ -115,9 +83,11 @@ macro_rules! tag_definition {
         }
     };
 
-    ($struct_vis:vis struct $struct_name:ident {
-        $($field_vis:vis $field_name:ident: $field_type:ty),*
-    }) => {
+    (
+        $struct_vis:vis struct $struct_name:ident {
+            $($field_vis:vis $field_name:ident: $field_type:ty),*
+        }
+    ) => {
         #[repr(C, packed)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {
@@ -140,9 +110,11 @@ macro_rules! tag_definition {
         }
     };
 
-    ($struct_vis:vis struct $struct_name:ident : $base_type:ident {
-        $($field_vis:vis $field_name:ident: $field_type:ty),*
-    }) => {
+    (
+        $struct_vis:vis struct $struct_name:ident : $base_type:ident {
+            $($field_vis:vis $field_name:ident: $field_type:ty),*
+        }
+    ) => {
         #[repr(C, packed)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {

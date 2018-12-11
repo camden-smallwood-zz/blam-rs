@@ -1,7 +1,6 @@
 use crate::tags::*;
 
 tag_definition! {
-    #[repr(i8)]
     pub enum MeshPartType {
         NotDrawn,
         OpaqueShadowOnly,
@@ -13,7 +12,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum MeshPartFlags {
         IsWaterSurface = 1 << 0,
         PerVertexLightmapPart = 1 << 1,
@@ -35,7 +34,7 @@ tag_definition! {
         pub first_subpart_index: i16,
         pub subpart_count: i16,
         pub part_type: TagEnum<i8, MeshPartType>,
-        pub part_flags: TagEnum<u8, MeshPartFlags>,
+        pub part_flags: TagFlags<u8, MeshPartFlags>,
         pub vertex_count: u16
     }
 }
@@ -50,7 +49,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum MeshFlags {
         HasVertexColor = 1 << 0,
         UseRegionIndexForSorting = 1 << 1,
@@ -64,7 +63,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum MeshVertexType {
         World,
         Rigid,
@@ -93,7 +91,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum MeshPrtType {
         None,
         Ambient,
@@ -103,7 +100,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum MeshPrimitiveType {
         PointList,
         LineList,
@@ -140,7 +136,7 @@ tag_definition! {
         pub subparts: TagBlock<MeshSubpart>,
         pub vertex_buffer_indices: [u16; 8],
         pub index_buffer_indices: [u16; 2],
-        pub flags: TagEnum<u8, MeshFlags>,
+        pub flags: TagFlags<u8, MeshFlags>,
         pub rigid_node_index: i8,
         pub vertex_type: TagEnum<i8, MeshVertexType>,
         pub prt_type: TagEnum<i8, MeshPrtType>,

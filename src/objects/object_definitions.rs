@@ -1,7 +1,6 @@
 use crate::{math::*, tags::*, text::*};
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ObjectType {
         Biped,
         Vehicle,
@@ -22,7 +21,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum ObjectDefinitionFlags {
         DoesNotCastShadow = 1 << 0,
         SearchCardinalDirectionMaps = 1 << 1,
@@ -42,7 +41,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum LightmapShadowMode {
         Default,
         Never,
@@ -52,7 +50,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum SweetenerSize {
         Small,
         Medium,
@@ -61,7 +58,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum WaterDensity {
         Default,
         Least,
@@ -84,7 +80,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ObjectAiFlags {
         DestroyableCover = 1 << 0,
         PathfindingIgnoreWhenDead = 1 << 1,
@@ -93,7 +89,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ObjectAiSize {
         Default,
         Tiny,
@@ -106,7 +101,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ObjectAiDistance {
         None,
         Down,
@@ -121,7 +115,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct ObjectAiProperties {
-        pub flags: TagEnum<i32, ObjectAiFlags>,
+        pub flags: TagFlags<i32, ObjectAiFlags>,
         pub ai_type_name: StringId,
         pub size: TagEnum<i16, ObjectAiSize>,
         pub leap_jump_speed: TagEnum<i16, ObjectAiDistance>
@@ -129,7 +123,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ObjectFunctionFlags {
         Invert = 1 << 0,
         MappingDoesNotControlsActive = 1 << 1,
@@ -140,7 +134,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct ObjectFunction {
-        pub flags: TagEnum<i32, ObjectFunctionFlags>,
+        pub flags: TagFlags<i32, ObjectFunctionFlags>,
         pub import_name: StringId,
         pub export_name: StringId,
         pub turn_off_with: StringId,
@@ -151,7 +145,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ObjectAttachmentVisionFlags {
         GameplayVisionMode = 1 << 0,
         TheaterVisionMode = 1 << 1
@@ -159,7 +153,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum ObjectAttachmentChangeColor {
         None,
         Primary,
@@ -170,7 +163,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum ObjectAttachmentFlags {
         ForceAlwaysOn = 1 << 0,
         EffectSizeScaleFromObjectScale = 1 << 1
@@ -179,11 +172,11 @@ tag_definition! {
 
 tag_definition! {
     pub struct ObjectAttachment {
-        pub vision_flags: TagEnum<i32, ObjectAttachmentVisionFlags>,
+        pub vision_flags: TagFlags<i32, ObjectAttachmentVisionFlags>,
         pub attachment: TagReference,
         pub marker: StringId,
         pub change_color: TagEnum<i8, ObjectAttachmentChangeColor>,
-        pub flags: TagEnum<u8, ObjectAttachmentFlags>,
+        pub flags: TagFlags<u8, ObjectAttachmentFlags>,
         unused: i16,
         pub primary_scale: StringId,
         pub secondary_scale: StringId
@@ -205,7 +198,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ObjectChangeColorScaleFlags {
         BlendInHsv = 1 << 0,
         MoreColors = 1 << 1
@@ -215,7 +208,7 @@ tag_definition! {
 tag_definition! {
     pub struct ObjectChangeColorFunction {
         unused: TagPadding<u32>,
-        pub scale_flags: TagEnum<i32, ObjectChangeColorScaleFlags>,
+        pub scale_flags: TagFlags<i32, ObjectChangeColorScaleFlags>,
         pub color_bounds: Bounds<ColorRgb<f32>>,
         pub darken_by: StringId,
         pub scale_by: StringId
@@ -236,7 +229,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum ObjectMultiplayerEngineFlags {
         CaptureTheFlag = 1 << 0,
         Slayer = 1 << 1,
@@ -252,7 +245,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum ObjectMultiplayerType {
         Ordinary,
         Weapon,
@@ -282,7 +274,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum ObjectMultiplayerTeleporterFlags {
         DisallowsPlayers = 1 << 0,
         AllowsLandVehicles = 1 << 1,
@@ -293,7 +285,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u8)]
+    #[repr(flags)]
     pub enum ObjectMultiplayerFlags {
         OnlyRenderInEditor = 1 << 0,
         ValidInitialPlayerSpawn = 1 << 1,
@@ -307,7 +299,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum ObjectMultiplayerShape {
         None,
         Sphere,
@@ -317,7 +308,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum ObjectMultiplayerSpawnTimerMode {
         Single,
         Multiple
@@ -326,11 +316,11 @@ tag_definition! {
 
 tag_definition! {
     pub struct ObjectMultiplayerProperties {
-        pub engine_flags: TagEnum<u16, ObjectMultiplayerEngineFlags>,
+        pub engine_flags: TagFlags<u16, ObjectMultiplayerEngineFlags>,
         pub object_type: TagEnum<i8, ObjectMultiplayerType>,
-        pub teleporter_flags: TagEnum<u8, ObjectMultiplayerTeleporterFlags>,
+        pub teleporter_flags: TagFlags<u8, ObjectMultiplayerTeleporterFlags>,
         unused: TagPadding<u8>,
-        pub flags: TagEnum<u8, ObjectMultiplayerFlags>,
+        pub flags: TagFlags<u8, ObjectMultiplayerFlags>,
         pub shape: TagEnum<i8, ObjectMultiplayerShape>,
         pub spawn_timer_mode: TagEnum<i8, ObjectMultiplayerSpawnTimerMode>,
         pub spawn_time: i16,
@@ -357,7 +347,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum ObjectModelDataType {
         NotSet,
         UserDefined,
@@ -378,7 +367,7 @@ tag_definition! {
     #[group_name = "object", group_tag = "obje"]
     pub struct ObjectDefinition {
         pub object_type: TagEnum<i16, ObjectType>,
-        pub object_flags: TagEnum<u16, ObjectDefinitionFlags>,
+        pub object_flags: TagFlags<u16, ObjectDefinitionFlags>,
         pub bounding_radius: f32,
         pub bounding_offset: Point3d<f32>,
         pub acceleration_scale: f32,

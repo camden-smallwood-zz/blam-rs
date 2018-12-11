@@ -1,7 +1,7 @@
 use crate::{math::*, objects::*, tags::*, text::*};
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum ItemDefinitionFlags {
         AlwaysMaintainsZUp = 1 << 0,
         DestroyedByExplosions = 1 << 1,
@@ -18,7 +18,7 @@ tag_definition! {
 tag_definition! {
     #[group_name = "item", group_tag = "item"]
     pub struct ItemDefinition : ObjectDefinition {
-        pub item_flags: TagEnum<i32, ItemDefinitionFlags>,
+        pub item_flags: TagFlags<i32, ItemDefinitionFlags>,
         pub old_message_index: i16,
         pub sort_order: i16,
         pub old_multiplayer_on_ground_scale: f32,

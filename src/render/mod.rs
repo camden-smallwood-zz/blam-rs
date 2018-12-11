@@ -1,5 +1,5 @@
-mod materials;
-mod meshes;
+mod material_definitions;
+mod mesh_definitions;
 
-pub use self::materials::*;
-pub use self::meshes::*;
+pub use self::material_definitions::*;
+pub use self::mesh_definitions::*;

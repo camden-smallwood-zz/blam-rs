@@ -8,5 +8,6 @@ pub mod models;
 pub mod objects;
 pub mod physics;
 pub mod render;
+pub mod resources;
 pub mod text;
 pub mod units;

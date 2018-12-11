@@ -1,7 +1,7 @@
 use crate::{math::*, physics::*, tags::*, text::*, units::*};
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum BipedDefinitionFlags {
         TurnsWithoutAnimating = 1 << 0,
         PassesThroughOtherBipeds = 1 << 1,
@@ -30,7 +30,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum BipedLockOnFlags {
         LockedByHumanTargeting = 1 << 0,
         LockedByPlasmaTargeting = 1 << 1,
@@ -49,7 +49,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum BipedPhysicsFlags {
         CenteredAtOrigin = 1 << 0,
         ShapeSpherical = 1 << 1,
@@ -71,7 +71,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct BipedPhysics {
-        pub physics_flags: TagEnum<i32, BipedPhysicsFlags>,
+        pub physics_flags: TagFlags<i32, BipedPhysicsFlags>,
         pub height_standing: f32,
         pub height_crouching: f32,
         pub radius: f32,
@@ -121,7 +121,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum BipedLeapingFlags {
         ForceEarlyRoll = 1 << 0
     }
@@ -129,7 +129,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct BipedLeaping {
-        pub flags: TagEnum<i32, BipedLeapingFlags>,
+        pub flags: TagFlags<i32, BipedLeapingFlags>,
         pub dampening_scale: f32,
         pub roll_delay: f32,
         pub cannonball_off_axis_scale: f32,
@@ -162,7 +162,7 @@ tag_definition! {
     #[group_name = "biped", group_tag = "bipd"]
     pub struct BipedDefinition : UnitDefinition {
         pub moving_turning_speed: Angle,
-        pub biped_flags: TagEnum<i32, BipedDefinitionFlags>,
+        pub biped_flags: TagFlags<i32, BipedDefinitionFlags>,
         pub stationary_turning_threshold: Angle,
         unknown1: u32,
         unknown2: StringId,
@@ -188,7 +188,7 @@ tag_definition! {
         unknown24: u32,
         unknown25: u32,
         pub autoaim_width: f32,
-        pub lock_on_flags: TagEnum<i32, BipedLockOnFlags>,
+        pub lock_on_flags: TagFlags<i32, BipedLockOnFlags>,
         pub lock_on_distance: u32,
         pub physics_control_node_index: i16,
         unknown29: i16,

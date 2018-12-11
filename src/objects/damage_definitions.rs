@@ -1,7 +1,6 @@
 use crate::tags::*;
 
 tag_definition! {
-    #[repr(i8)]
     pub enum DamageReportingType {
         GuardiansUnknown,
         Guardians,

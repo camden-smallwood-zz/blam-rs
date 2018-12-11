@@ -1,7 +1,6 @@
 use crate::tags::*;
 
 tag_definition! {
-    #[repr(i32)]
     pub enum MaterialPropertyType {
         LightmapResolution,
         LightmapPower,

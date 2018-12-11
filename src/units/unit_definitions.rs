@@ -1,7 +1,7 @@
 use crate::{math::*, objects::*, tags::*, text::*};
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum UnitDefinitionFlags {
         CircularAiming = 1 << 0,
         DestroyedAfterDying = 1 << 1,
@@ -36,7 +36,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum UnitMetagameTeam {
         Default,
         Player,
@@ -58,7 +57,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum UnitMetagameKind {
         Actor,
         Vehicle
@@ -66,7 +64,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum UnitMetagameType {
         Brute,
         Grunt,
@@ -102,7 +99,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i8)]
     pub enum UnitMetagameClass {
         Infantry,
         Leader,
@@ -133,7 +129,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum UnitMotionSensorBlipSize {
         Medium,
         Small,
@@ -142,7 +137,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum UnitItemScale {
         Small,
         Medium,
@@ -173,7 +167,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum UnitGrenadeType {
         HumanFragmentation,
         CovenantPlasma,
@@ -213,7 +206,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(i32)]
+    #[repr(flags)]
     pub enum UnitSeatFlags {
         Invisible = 1 << 0,
         Locked = 1 << 1,
@@ -242,7 +235,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[repr(i16)]
     pub enum UnitAiSeatType {
         None,
         Passenger,
@@ -254,7 +246,7 @@ tag_definition! {
 }
 
 tag_definition! {
-    #[flags, repr(u16)]
+    #[repr(flags)]
     pub enum UnitCameraFlags {
         PitchBoundsAbsoluteSpace = 1 << 0,
         OnlyCollidesWithEnvironment = 1 << 1,
@@ -283,7 +275,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct UnitCamera {
-        pub camera_flags: TagEnum<u16, UnitCameraFlags>,
+        pub camera_flags: TagFlags<u16, UnitCameraFlags>,
         unused: TagPadding<u16>,
         pub camera_marker_name: StringId,
         pub camera_submerged_marker_name: StringId,
@@ -306,7 +298,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct UnitSeat {
-        pub flags: TagEnum<i32, UnitSeatFlags>,
+        pub flags: TagFlags<i32, UnitSeatFlags>,
         pub seat_animation: StringId,
         pub seat_marker_name: StringId,
         pub entry_marker_name: StringId,
@@ -343,7 +335,7 @@ tag_definition! {
 tag_definition! {
     #[group_name = "unit", group_tag = "unit"]
     pub struct UnitDefinition : ObjectDefinition {
-        pub unit_flags: TagEnum<i32, UnitDefinitionFlags>,
+        pub unit_flags: TagFlags<i32, UnitDefinitionFlags>,
         pub default_team: TagEnum<i16, UnitMetagameTeam>,
         pub constant_sound_volume: TagEnum<i16, ObjectNoiseLevel>,
         pub hologram_unit: TagReference,
