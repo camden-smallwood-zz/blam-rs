@@ -1,8 +1,8 @@
 use crate::{tags::{Tag, TagStructDefinition}, text::StringId};
 
 pub trait TagGroupDefinition: TagStructDefinition {
-    const GROUP_NAME: &'static str;
-    const GROUP_TAG: Tag;
+    fn get_group_name() -> &'static str;
+    fn get_group_tag() -> Tag;
 }
 
 #[repr(C, packed)]

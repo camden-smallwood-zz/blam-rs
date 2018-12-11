@@ -8,7 +8,7 @@ pub struct TagEnumOption<T> {
 
 pub trait TagEnumDefinition: TagDefinition {
     type BaseType: 'static;
-    const OPTIONS: &'static [TagEnumOption<Self::BaseType>];
+    fn get_options() -> Vec<TagEnumOption<Self::BaseType>>;
 }
 
 #[repr(C)]

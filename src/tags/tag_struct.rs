@@ -53,5 +53,5 @@ pub struct TagFieldInfo {
 }
 
 pub trait TagStructDefinition: TagDefinition {
-    const FIELDS: &'static [TagFieldInfo];
+    fn get_fields() -> Vec<TagFieldInfo>;
 }

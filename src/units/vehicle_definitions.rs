@@ -1,4 +1,4 @@
-use crate::{math::*, tags::*, text::*, units::*};
+use crate::{math::*, models::*, physics::*, tags::*, text::*, units::*};
 
 tag_definition! {
     #[flags, repr(i32)]
@@ -151,7 +151,7 @@ tag_definition! {
         pub slide_acceleration: f32,
         pub slide_deceleration: f32,
         pub flags: TagEnum<u8, VehicleAlienScoutFlags>,
-        pub unused: TagPadding<[u8; 3]>,
+        unused: TagPadding<[u8; 3]>,
         pub drag_coeficient: f32,
         pub constant_deceleration: f32,
         pub torque_scale: f32,
@@ -296,18 +296,79 @@ tag_definition! {
 }
 
 tag_definition! {
-    pub struct VehicleAntiGravityPoint {
-        // TODO: define VehicleAntiGravityPoint
+    #[flags, repr(i32)]
+    pub enum VehicleAntiGravityPointFlags {
+        GetsDamageFromRegion = 1 << 0,
+        OnlyActiveOnWater = 1 << 1
     }
 }
+
+tag_definition! {
+    pub struct VehicleAntiGravityPoint {
+        pub marker_name: StringId,
+        pub flags: TagEnum<i32, VehicleAntiGravityPointFlags>,
+        pub antigrav_strength: f32,
+        pub antigrav_height: f32,
+        pub antigrav_damp_factor: f32,
+        pub antigrav_extension_damping: f32,
+        pub antigrav_normal_k1: f32,
+        pub antigrav_normal_k0: f32,
+        pub radius: f32,
+        unused1: TagPadding<[u32; 3]>,
+        unused2: TagPadding<[u8; 2]>,
+        pub damage_source_region_index: i16,
+        pub damage_source_region_name: StringId,
+        pub default_state_error: f32,
+        pub minor_damage_error: f32,
+        pub medium_damage_error: f32,
+        pub major_damage_error: f32,
+        pub destroyed_state_error: f32
+    }
+}
+
+tag_definition! {
+    #[flags, repr(i32)]
+    pub enum VehicleFrictionPointFlags {
+        GetsDamageFromRegion = 1 << 0,
+        Powered = 1 << 1,
+        FrontTurning = 1 << 2,
+        RearTurning = 1 << 3,
+        AttachedToEBrake = 1 << 4,
+        CanBeDestroyed = 1 << 5
+    }
+}
+
+tag_definition! {
+    #[repr(i16)]
+    pub enum VehicleFrictionPointType {
+        Point,
+        Forward
+    }
+}
+
 tag_definition! {
     pub struct VehicleFrictionPoint {
-        // TODO: define VehicleFrictionPoint
-    }
-}
-tag_definition! {
-    pub struct VehiclePhantomShape {
-        // TODO: define VehiclePhantomShape
+        pub marker_name: StringId,
+        pub flags: TagEnum<i32, VehicleFrictionPointFlags>,
+        pub fraction_of_total_mass: f32,
+        pub radius: f32,
+        pub damaged_radius: f32,
+        pub friction_type: TagEnum<i16, VehicleFrictionPointType>,
+        unused: TagPadding<u16>,
+        pub moving_friction_velocity_diff: f32,
+        pub e_brake_moving_friction: f32,
+        pub e_brake_friction: f32,
+        pub e_brake_moving_friction_velocity_diff: f32,
+        unknown2: f32,
+        unknown3: f32,
+        unknown4: f32,
+        unknown5: f32,
+        unknown6: f32,
+        pub collision_material_name: StringId,
+        pub collision_global_material_index: i16,
+        pub model_state_destroyed: TagEnum<i16, ModelDamageState>,
+        pub region_name: StringId,
+        pub region_index: i32
     }
 }
 
@@ -330,7 +391,7 @@ tag_definition! {
         unknown3: f32,
         pub anti_gravity_points: TagBlock<VehicleAntiGravityPoint>,
         pub friction_points: TagBlock<VehicleFrictionPoint>,
-        pub phantom_shapes: TagBlock<VehiclePhantomShape>
+        pub phantom_shapes: TagBlock<HavokPhantomShape>
     }
 }
 
@@ -364,7 +425,7 @@ tag_definition! {
         pub player_training_vehicle_type: TagEnum<i8, VehiclePlayerTrainingType>,
         pub vehicle_size: TagEnum<i8, VehicleSize>,
         pub complex_suspension_sample_count: i8,
-        pub unused: TagPadding<u8>,
+        unused: TagPadding<u8>,
         pub minimum_flipping_angular_velocity: f32,
         pub maximum_flipping_angular_velocity: f32,
         pub crouch_transition_time: f32,

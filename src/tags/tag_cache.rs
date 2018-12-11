@@ -1,6 +1,6 @@
 use memmap::MmapMut;
 use std::{fs::OpenOptions, io};
-use crate::tags::{TagGroupDefinition, TagInstance};
+use crate::tags::{TagGroup, TagGroupDefinition};
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -11,6 +11,19 @@ pub struct TagCacheHeader {
     unused2: u32,
     pub guid: i64,
     unused3: u64
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct TagInstance {
+    pub checksum: u32,
+    pub size: u32,
+    pub dependency_count: i16,
+    pub data_fixup_count: i16,
+    pub resource_fixup_count: i16,
+    unused: i16,
+    pub definition_offset: u32,
+    pub group: TagGroup
 }
 
 static mut MMAP: Option<MmapMut> = None;
@@ -25,7 +38,7 @@ pub fn open(path: &str) -> io::Result<()> {
     }
 }
 
-pub fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
+fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
     if let Some(mmap) = unsafe { &MMAP } {
         Ok(unsafe { mmap.as_ptr().offset(offset) as *const T })
     } else {
@@ -33,7 +46,7 @@ pub fn get_ptr<T>(offset: isize) -> io::Result<*const T> {
     }
 }
 
-pub fn get_mut_ptr<T>(offset: isize) -> io::Result<*mut T> {
+fn get_mut_ptr<T>(offset: isize) -> io::Result<*mut T> {
     if let Some(mmap) = unsafe { &mut MMAP } {
         Ok(unsafe { mmap.as_mut_ptr().offset(offset) as *mut T })
     } else {
@@ -41,11 +54,11 @@ pub fn get_mut_ptr<T>(offset: isize) -> io::Result<*mut T> {
     }
 }
 
-pub fn get_header<'a>() -> io::Result<&'a TagCacheHeader> {
+fn get_header<'a>() -> io::Result<&'a TagCacheHeader> {
     Ok(unsafe { self::get_ptr::<TagCacheHeader>(0)?.as_ref().unwrap() })
 }
 
-pub fn get_offset(tag_index: isize) -> io::Result<Option<isize>> {
+fn get_offset(tag_index: isize) -> io::Result<Option<isize>> {
     let header = self::get_header()?;
     if tag_index < 0 || tag_index >= header.instance_count as isize {
         Err(io::Error::new(io::ErrorKind::InvalidInput, format!("Invalid tag index: 0x{:X}", tag_index).to_string()))
