@@ -22,14 +22,14 @@ macro_rules! tag_field_impl {
 macro_rules! tag_definition {
     (
         $enum_vis:vis enum $enum_name:ident {
-            $($option_name:ident),*
+            $($option_name:ident $(= $option_value:expr)*),*
         }
     ) => {
         #[repr(C)]
         #[allow(clippy::identity_op)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
-            $($option_name,)*
+            $($option_name $(= $option_value)*,)*
         }
         tag_definition_impl!($enum_name);
         impl TagEnumDefinition for $enum_name {
@@ -37,16 +37,11 @@ macro_rules! tag_definition {
                 vec![
                     $(
                         TagEnumOption {
-                            name: stringify!($option_name),
+                            name: stringify!($enum_name),
                             value: $enum_name::$option_name as isize
                         },
                     )*
                 ]
-            }
-        }
-        impl std::fmt::Display for $enum_name {
-            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "{}", match *self { $($enum_name::$option_name => stringify!($option_name),)* })
             }
         }
     };

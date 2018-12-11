@@ -1,3 +1,3 @@
-mod raw_page_definitions;
+mod resource_definitions;
 
-pub use self::raw_page_definitions::*;
+pub use self::resource_definitions::*;
