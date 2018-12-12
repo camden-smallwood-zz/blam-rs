@@ -83,7 +83,7 @@ macro_rules! tag_definition {
             $($field_vis:vis $field_name:ident: $field_type:ty),*
         }
     ) => {
-        #[repr(C, packed)]
+        #[repr(C)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {
             $($field_vis $field_name: $field_type,)*
@@ -110,7 +110,7 @@ macro_rules! tag_definition {
             $($field_vis:vis $field_name:ident: $field_type:ty),*
         }
     ) => {
-        #[repr(C, packed)]
+        #[repr(C)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {
             pub base: $base_type,
@@ -139,7 +139,7 @@ macro_rules! tag_definition {
             $($field_vis:vis $field_name:ident: $field_type:ty),*
         }
     ) => {
-        #[repr(C, packed)]
+        #[repr(C)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {
             $($field_vis $field_name: $field_type,)*
@@ -172,7 +172,7 @@ macro_rules! tag_definition {
             $($field_vis:vis $field_name:ident: $field_type:ty),*
         }
     ) => {
-        #[repr(C, packed)]
+        #[repr(C)]
         #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
         $struct_vis struct $struct_name {
             pub base: $base_type,
