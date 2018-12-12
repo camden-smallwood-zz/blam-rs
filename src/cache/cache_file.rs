@@ -1,21 +1,33 @@
-use std::{cmp, fs::{File, OpenOptions}, io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}};
+use std::{cmp, fs::{File, OpenOptions}, io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem};
 use crate::io::{ReadBinary, WriteBinary};
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct CacheFileHeader {
-    unused1: u32,
-    pub index_offset: i32,
-    pub instance_count: i32,
-    unused2: u32,
+    pub unused1: u32,
+    pub index_offset: u32,
+    pub instance_count: u32,
+    pub unused2: u32,
     pub guid: i64,
-    unused3: u64
+    pub unused3: u64
+}
+
+impl Default for CacheFileHeader {
+    fn default() -> Self {
+        Self{
+            unused1: 0,
+            index_offset: mem::size_of::<CacheFileHeader>() as u32,
+            instance_count: 0,
+            unused2: 0,
+            guid: 0,
+            unused3: 0
+        }
+    }
 }
 
 pub struct CacheFile {
     pub file: Option<File>,
-    pub header: Option<CacheFileHeader>,
-    pub offsets: Vec<Option<usize>>
+    pub header: Option<CacheFileHeader>
 }
 
 impl CacheFile {
@@ -27,24 +39,36 @@ impl CacheFile {
         file.seek(SeekFrom::Start(0))?;
         let header: CacheFileHeader = file.read_binary()?;
 
-        file.seek(SeekFrom::Start(header.index_offset as u64))?;
-        let mut offsets: Vec<Option<usize>> = vec![None; header.instance_count as usize];
-        
-        for index in 0..header.instance_count {
-            let offset: u32 = file.read_binary()?;
-            offsets[index as usize] = if offset == std::u32::MAX { None } else { Some(offset as usize) };
-        }
-
-        Ok(Self { file: Some(file), header: Some(header), offsets })
+        Ok(Self { file: Some(file), header: Some(header) })
     }
 
-    pub fn copy_block(&mut self, old_pos: usize, new_pos: usize, length: usize) -> io::Result<()> {
+    pub fn position(&mut self) -> io::Result<u64> {
+        if let Some(ref mut file) = self.file {
+            file.seek(SeekFrom::Current(0))
+        } else {
+            Err(Error::new(ErrorKind::NotConnected, "CacheFile has not been opened"))
+        }
+    }
+
+    pub fn set_len(&mut self, length: u64) -> io::Result<()> {
+        if let Some(ref mut file) = self.file {
+            file.set_len(length as u64)
+        } else {
+            Err(Error::new(ErrorKind::NotConnected, "CacheFile has not been opened"))
+        }
+    }
+
+    pub fn copy_block(&mut self, old_pos: u64, new_pos: u64, length: u64) -> io::Result<()> {
         let mut remaining = length;
 
         while remaining > 0 {
-            let mut buffer = vec![0u8; cmp::min(Self::PAGE_SIZE, remaining)];
+            let mut buffer = vec![0u8; cmp::min(Self::PAGE_SIZE, remaining as usize)];
 
-            let offset = if new_pos > old_pos { remaining - buffer.len() } else { length - remaining };
+            let offset = if new_pos > old_pos {
+                remaining - buffer.len() as u64
+            } else {
+                length - remaining as u64
+            };
 
             self.seek(SeekFrom::Start((old_pos + offset) as u64))?;
             self.read_exact(buffer.as_mut_slice())?;
@@ -52,45 +76,29 @@ impl CacheFile {
             self.seek(SeekFrom::Start((new_pos + offset) as u64))?;
             self.write_all(buffer.as_mut_slice())?;
 
-            remaining -= buffer.len();
+            remaining -= buffer.len() as u64;
         }
 
         Ok(())
     }
 
-    pub fn resize_block(&mut self, offset: usize, old_length: usize, new_length: usize) -> io::Result<()> {
+    pub fn resize_block(&mut self, offset: u64, old_length: u64, new_length: u64) -> io::Result<()> {
+        let old_pos: u64;
+        let new_pos: u64;
+        let length: u64;
+
         if let Some(ref mut file) = self.file {
             let old_end_offset = offset + old_length;
             let size_delta = new_length - old_length;
             
-            let old_pos = old_end_offset;
-            let new_pos = old_end_offset + size_delta;
-            let length = (file.metadata()?.len() as usize) - old_end_offset;
-
-            let mut remaining = length;
-
-            while remaining > 0 {
-                let mut buffer = vec![0u8; cmp::min(Self::PAGE_SIZE, remaining)];
-                
-                let offset = if new_pos > old_pos {
-                    remaining - buffer.len()
-                } else {
-                    length - remaining
-                };
-
-                self.seek(SeekFrom::Start((old_pos + offset) as u64))?;
-                self.read_exact(buffer.as_mut_slice())?;
-
-                self.seek(SeekFrom::Start((new_pos + offset) as u64))?;
-                self.write_all(buffer.as_mut_slice())?;
-
-                remaining -= buffer.len();
-            }
-
-            Ok(())
+            old_pos = old_end_offset;
+            new_pos = old_end_offset + size_delta;
+            length = (file.metadata()?.len() as u64) - old_end_offset;
         } else {
-            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
+            return Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"));
         }
+
+        self.copy_block(old_pos, new_pos, length)
     }
 }
 
