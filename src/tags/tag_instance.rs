@@ -34,10 +34,10 @@ impl Default for TagInstanceHeader {
 pub struct TagInstance {
     pub header: Option<TagInstanceHeader>,
     pub index: Option<usize>,
-    pub offset: Option<usize>,
+    pub offset: Option<u64>,
     pub dependencies: Vec<usize>,
-    pub data_fixups: Vec<usize>,
-    pub resource_fixups: Vec<usize>
+    pub data_fixups: Vec<u64>,
+    pub resource_fixups: Vec<u64>
 }
 
 impl TagInstance {
@@ -61,11 +61,11 @@ impl TagInstance {
             }
 
             for _ in 0..self.header.unwrap().data_fixup_count {
-                self.data_fixups.push(file.read_binary::<u32>()? as usize);
+                self.data_fixups.push(u64::from(file.read_binary::<u32>()?));
             }
 
             for _ in 0..self.header.unwrap().resource_fixup_count {
-                self.resource_fixups.push(file.read_binary::<u32>()? as usize);
+                self.resource_fixups.push(u64::from(file.read_binary::<u32>()?));
             }
 
             Ok(())

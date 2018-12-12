@@ -43,11 +43,7 @@ impl CacheFile {
     }
 
     pub fn position(&mut self) -> io::Result<u64> {
-        if let Some(ref mut file) = self.file {
-            file.seek(SeekFrom::Current(0))
-        } else {
-            Err(Error::new(ErrorKind::NotConnected, "CacheFile has not been opened"))
-        }
+        self.seek(SeekFrom::Current(0))
     }
 
     pub fn set_len(&mut self, length: u64) -> io::Result<()> {
