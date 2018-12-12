@@ -12,3 +12,9 @@ impl<T> Quaternion<T> {
         Quaternion { i, j, k, w }
     }
 }
+
+impl<T: Default> Default for Quaternion<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default(), Default::default(), Default::default())
+    }
+}

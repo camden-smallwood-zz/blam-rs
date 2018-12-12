@@ -11,3 +11,9 @@ impl<T> Point3d<T> {
         Point3d { x, y, z }
     }
 }
+
+impl<T: Default> Default for Point3d<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default(), Default::default())
+    }
+}

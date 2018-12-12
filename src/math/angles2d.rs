@@ -12,3 +12,9 @@ impl Angles2d {
         Angles2d { yaw, pitch }
     }
 }
+
+impl Default for Angles2d {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default())
+    }
+}

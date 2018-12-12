@@ -12,3 +12,9 @@ impl<T> Plane3d<T> {
         Plane3d { normal, distance }
     }
 }
+
+impl<T: Default> Default for Plane3d<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default())
+    }
+}

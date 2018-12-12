@@ -1,7 +1,7 @@
 use std::{mem, str, string::ToString};
 
 #[repr(C, packed)]
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, PartialOrd)]
 pub struct Tag(pub i32);
 
 impl Default for Tag {

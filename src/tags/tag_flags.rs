@@ -13,3 +13,9 @@ pub trait TagFlagsDefinition: TagDefinition {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct TagFlags<BaseType: Sized, FlagsType: Sized + TagFlagsDefinition>(pub BaseType, PhantomData<FlagsType>);
+
+impl<BaseType: Default + Sized, EnumType: Sized + TagFlagsDefinition> Default for TagFlags<BaseType, EnumType> {
+    fn default() -> Self {
+        TagFlags(Default::default(), PhantomData)
+    }
+}

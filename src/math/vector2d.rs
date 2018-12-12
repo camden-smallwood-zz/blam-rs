@@ -10,3 +10,9 @@ impl<T> Vector2d<T> {
         Vector2d { i, j }
     }
 }
+
+impl<T: Default> Default for Vector2d<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default())
+    }
+}

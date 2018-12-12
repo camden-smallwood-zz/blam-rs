@@ -1,10 +1,14 @@
 pub trait TagDefinition {
+    fn get_name() -> &'static str;
     fn get_size() -> usize;
 }
 
 macro_rules! tag_definition_impl {
     ($type:ident) => {
         impl TagDefinition for $type {
+            fn get_name() -> &'static str {
+                stringify!($type)
+            }
             fn get_size() -> usize {
                 std::mem::size_of::<$type>()
             }
@@ -16,6 +20,18 @@ macro_rules! tag_field_impl {
     ($field_type:ty) => {
         TagField::Undefined
     }
+}
+
+macro_rules! offset_of {
+    ($Struct:ident, $field:ident) => ({
+        fn offset_of() -> usize {
+            let u: $Struct = Default::default();
+            let &$Struct { $field: ref f, .. } = &u;
+            let o = (f as *const _ as usize).wrapping_sub(&u as *const _ as usize);
+            o
+        }
+        offset_of()
+    })
 }
 
 #[macro_export]
@@ -91,12 +107,21 @@ macro_rules! tag_definition {
 
         tag_definition_impl!($struct_name);
 
+        impl Default for $struct_name {
+            fn default() -> $struct_name {
+                $struct_name {
+                    $($field_name: Default::default(),)*
+                }
+            }
+        }
+
         impl TagStructDefinition for $struct_name {
             fn get_fields() -> Vec<TagFieldInfo> {
                 vec![
                     $(
                         TagFieldInfo {
                             name: stringify!($field_name),
+                            offset: offset_of!($struct_name, $field_name),
                             field: tag_field_impl!($field_type)
                         },
                     )*
@@ -119,12 +144,22 @@ macro_rules! tag_definition {
         
         tag_definition_impl!($struct_name);
 
+        impl Default for $struct_name {
+            fn default() -> $struct_name {
+                $struct_name {
+                    base: Default::default(),
+                    $($field_name: Default::default(),)*
+                }
+            }
+        }
+
         impl TagStructDefinition for $struct_name {
             fn get_fields() -> Vec<TagFieldInfo> {
                 vec![
                     $(
                         TagFieldInfo {
                             name: stringify!($field_name),
+                            offset: offset_of!($struct_name, $field_name),
                             field: tag_field_impl!($field_type)
                         },
                     )*
@@ -147,12 +182,21 @@ macro_rules! tag_definition {
         
         tag_definition_impl!($struct_name);
         
+        impl Default for $struct_name {
+            fn default() -> $struct_name {
+                $struct_name {
+                    $($field_name: Default::default(),)*
+                }
+            }
+        }
+
         impl TagStructDefinition for $struct_name {
             fn get_fields() -> Vec<TagFieldInfo> {
                 vec![
                     $(
                         TagFieldInfo {
                             name: stringify!($field_name),
+                            offset: offset_of!($struct_name, $field_name),
                             field: tag_field_impl!($field_type)
                         },
                     )*
@@ -181,12 +225,22 @@ macro_rules! tag_definition {
         
         tag_definition_impl!($struct_name);
         
+        impl Default for $struct_name {
+            fn default() -> $struct_name {
+                $struct_name {
+                    base: Default::default(),
+                    $($field_name: Default::default(),)*
+                }
+            }
+        }
+
         impl TagStructDefinition for $struct_name {
             fn get_fields() -> Vec<TagFieldInfo> {
                 vec![
                     $(
                         TagFieldInfo {
                             name: stringify!($field_name),
+                            offset: offset_of!($struct_name, $field_name),
                             field: tag_field_impl!($field_type)
                         },
                     )*

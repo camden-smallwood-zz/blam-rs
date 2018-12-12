@@ -11,3 +11,9 @@ impl<T> ColorRgb<T> {
         ColorRgb { red, green, blue }
     }
 }
+
+impl<T: Default> Default for ColorRgb<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default(), Default::default())
+    }
+}

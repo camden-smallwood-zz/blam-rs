@@ -10,3 +10,9 @@ impl<T> Bounds<T> {
         Bounds { lower, upper }
     }
 }
+
+impl<T: Default> Default for Bounds<T> {
+    fn default() -> Self {
+        Self::new(Default::default(), Default::default())
+    }
+}

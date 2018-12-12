@@ -49,6 +49,7 @@ pub enum TagField {
 
 pub struct TagFieldInfo {
     pub name: &'static str,
+    pub offset: usize,
     pub field: TagField
 }
 
