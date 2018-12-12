@@ -1,5 +1,5 @@
-use std::{fs::{File, OpenOptions}, io::{Seek, SeekFrom, self}, mem, ops::{Index, IndexMut}};
-use crate::{io::ReadBinary, tags::{TagGroup, TagInstance}};
+use std::{io, ops::{Index, IndexMut}};
+use crate::{cache::CacheFile, tags::{TagGroup, TagInstance}};
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -13,37 +13,26 @@ pub struct TagCacheHeader {
 }
 
 pub struct TagCache {
-    pub file: Option<File>,
-    pub header: Option<TagCacheHeader>,
+    pub file: CacheFile,
     pub instances: Vec<TagInstance>
 }
 
 impl TagCache {
     pub fn open(path: String) -> io::Result<TagCache> {
-        let mut file = OpenOptions::new().read(true).write(true).open(path)?;
+        let mut file = CacheFile::open(path)?;
         let mut instances: Vec<TagInstance> = vec![];
         
-        file.seek(SeekFrom::Start(0))?;
-        let header: TagCacheHeader = file.read_binary()?;
-
-        for index in 0..header.instance_count {
-            file.seek(SeekFrom::Start(header.index_offset as u64 + (index as u64 * mem::size_of::<u32>() as u64)))?;
-            let offset: u32 = file.read_binary()?;
-
+        for index in 0..file.header.unwrap().instance_count {
             let mut instance = TagInstance {
                 index: Some(index as usize),
-                offset: Some(offset as usize),
+                offset: file.offsets[index as usize],
                 ..Default::default()
             };
-
-            if offset > 0 {
-                instance.read_header(&mut file)?;
-            }
-
+            instance.read_header(&mut file)?;
             instances.push(instance);
         }
 
-        Ok(Self { file: Some(file), header: Some(header), instances })
+        Ok(Self { file, instances })
     }
 
     pub fn allocate_tag(&mut self, group: TagGroup) -> &mut TagInstance {

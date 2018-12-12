@@ -1,7 +1,7 @@
 #![allow(clippy::cast_lossless, clippy::transmute_ptr_to_ptr)]
 
 use std::{fs::File, io::{Seek, SeekFrom, self}};
-use crate::{io::ReadBinary, tags::{TagGroup, TagGroupDefinition}};
+use crate::{cache::CacheFile, io::ReadBinary, tags::{TagGroup, TagGroupDefinition}};
 
 #[repr(C, packed)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -51,7 +51,7 @@ impl TagInstance {
         }
     }
 
-    pub fn read_header(&mut self, file: &mut File) -> io::Result<()> {
+    pub fn read_header(&mut self, file: &mut CacheFile) -> io::Result<()> {
         if let Some(offset) = self.offset {
             file.seek(SeekFrom::Start(offset as u64))?;
             self.header = Some(file.read_binary::<TagInstanceHeader>()?);
@@ -70,7 +70,7 @@ impl TagInstance {
 
             Ok(())
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "TagInstance has no offset"))
+            Err(io::Error::new(io::ErrorKind::NotFound, "TagInstance has no offset"))
         }
     }
 
@@ -80,10 +80,10 @@ impl TagInstance {
                 file.seek(io::SeekFrom::Start((offset as u32 + header.definition_offset) as u64))?;
                 Ok(file.read_binary()?)
             } else {
-                Err(io::Error::new(io::ErrorKind::Other, "TagInstance has no header"))
+                Err(io::Error::new(io::ErrorKind::NotFound, "TagInstance has no header"))
             }
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "TagInstance has no offset"))
+            Err(io::Error::new(io::ErrorKind::NotFound, "TagInstance has no offset"))
         }
     }
 }

@@ -1,6 +1,7 @@
 #[macro_use]
 pub mod tags;
 
+pub mod cache;
 pub mod io;
 pub mod items;
 pub mod math;

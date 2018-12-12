@@ -71,13 +71,6 @@ tag_definition! {
 }
 
 tag_definition! {
-    pub struct PageableResource {
-        pub page: RawPage,
-        pub resource: TagResource
-    }
-}
-
-tag_definition! {
     pub enum ResourceLocation {
         None = -1,
         Resources,
@@ -87,5 +80,12 @@ tag_definition! {
         ResourcesB,
         RenderModels,
         Lightmaps
+    }
+}
+
+tag_definition! {
+    pub struct PageableResource {
+        pub page: RawPage,
+        pub resource: TagResource
     }
 }
