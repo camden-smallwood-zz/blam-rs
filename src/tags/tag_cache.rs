@@ -1,17 +1,6 @@
 use std::{io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem, ops::{Index, IndexMut}, u32};
 use crate::{cache::{CacheFile, CacheFileHeader}, io::{ReadBinary, WriteBinary}, tags::{TagGroup, TagInstance, TagInstanceHeader}};
 
-#[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct TagCacheHeader {
-    unused1: u32,
-    pub index_offset: i32,
-    pub instance_count: i32,
-    unused2: u32,
-    pub guid: i64,
-    unused3: u64
-}
-
 pub struct TagCache {
     pub file: CacheFile,
     pub instances: Vec<TagInstance>
@@ -29,7 +18,7 @@ impl TagCache {
             let offset: u32 = file.read_binary()?;
             offsets[index as usize] = match offset {
                 0u32 | u32::MAX => None,
-                _ => Some(offset as u64)
+                _ => Some(u64::from(offset))
             };
         }
 
@@ -85,7 +74,7 @@ impl TagCache {
             reader.read_exact(buffer.as_mut_slice())?;
             
             let instance = &mut self.instances[index];
-            let old_end_offset = instance.offset.unwrap() + instance.header.unwrap().size as u64;
+            let old_end_offset = instance.offset.unwrap() + u64::from(instance.header.unwrap().size);
             let size_delta = new_header.size as isize - instance.header.unwrap().size as isize;
 
             self.file.resize_block(
@@ -106,7 +95,7 @@ impl TagCache {
             let mut end_offset = mem::size_of::<CacheFileHeader>() as u64;
             for instance in &self.instances {
                 if let Some(ref header) = instance.header {
-                    end_offset += header.size as u64;
+                    end_offset += u64::from(header.size);
                 }
             }
             Ok(end_offset)
@@ -122,7 +111,7 @@ impl TagCache {
                 for i in (0..(index - 1)).rev() {
                     if let Some(offset) = self.instances[i].offset {
                         if let Some(ref header) = self.instances[i].header {
-                            return Ok(offset + header.size as u64);
+                            return Ok(offset + u64::from(header.size));
                         }
                     }
                 }
