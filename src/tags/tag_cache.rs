@@ -1,4 +1,4 @@
-use std::{io, ops::{Index, IndexMut}};
+use std::{io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, ops::{Index, IndexMut}};
 use crate::{cache::CacheFile, tags::{TagGroup, TagInstance}};
 
 #[repr(C)]
@@ -41,6 +41,22 @@ impl TagCache {
         let instance = &mut self.instances[index as usize];
         instance.index = Some(index);
         instance
+    }
+
+    pub fn extract_tag(&mut self, index: usize, writer: &mut dyn Write) -> io::Result<()> {
+        if index >= self.instances.len() {
+            Err(Error::new(ErrorKind::InvalidInput, format!("Invalid tag index: {}", index).to_string()))
+        } else {
+            let instance = &self.instances[index];
+            if let Some(offset) = instance.offset {
+                let mut buffer = vec![0u8; instance.header.unwrap().size as usize];
+                self.file.seek(SeekFrom::Start(offset as u64))?;
+                self.file.read_exact(buffer.as_mut_slice())?;
+                writer.write_all(buffer.as_mut_slice())
+            } else {
+                Err(Error::new(ErrorKind::NotFound, "TagInstance has no offset"))
+            }
+        }
     }
 }
 
