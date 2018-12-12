@@ -1,4 +1,4 @@
-use std::{fs::{File, OpenOptions}, io::{self, Read, Seek, SeekFrom, Write}};
+use std::{cmp, fs::{File, OpenOptions}, io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}};
 use crate::io::{ReadBinary, WriteBinary};
 
 #[repr(C)]
@@ -19,6 +19,8 @@ pub struct CacheFile {
 }
 
 impl CacheFile {
+    const PAGE_SIZE: usize = 0x1000;
+
     pub fn open(path: String) -> io::Result<CacheFile> {
         let mut file = OpenOptions::new().read(true).write(true).open(path)?;
         
@@ -35,6 +37,61 @@ impl CacheFile {
 
         Ok(Self { file: Some(file), header: Some(header), offsets })
     }
+
+    pub fn copy_block(&mut self, old_pos: usize, new_pos: usize, length: usize) -> io::Result<()> {
+        let mut remaining = length;
+
+        while remaining > 0 {
+            let mut buffer = vec![0u8; cmp::min(Self::PAGE_SIZE, remaining)];
+
+            let offset = if new_pos > old_pos { remaining - buffer.len() } else { length - remaining };
+
+            self.seek(SeekFrom::Start((old_pos + offset) as u64))?;
+            self.read_exact(buffer.as_mut_slice())?;
+
+            self.seek(SeekFrom::Start((new_pos + offset) as u64))?;
+            self.write_all(buffer.as_mut_slice())?;
+
+            remaining -= buffer.len();
+        }
+
+        Ok(())
+    }
+
+    pub fn resize_block(&mut self, offset: usize, old_length: usize, new_length: usize) -> io::Result<()> {
+        if let Some(ref mut file) = self.file {
+            let old_end_offset = offset + old_length;
+            let size_delta = new_length - old_length;
+            
+            let old_pos = old_end_offset;
+            let new_pos = old_end_offset + size_delta;
+            let length = (file.metadata()?.len() as usize) - old_end_offset;
+
+            let mut remaining = length;
+
+            while remaining > 0 {
+                let mut buffer = vec![0u8; cmp::min(Self::PAGE_SIZE, remaining)];
+                
+                let offset = if new_pos > old_pos {
+                    remaining - buffer.len()
+                } else {
+                    length - remaining
+                };
+
+                self.seek(SeekFrom::Start((old_pos + offset) as u64))?;
+                self.read_exact(buffer.as_mut_slice())?;
+
+                self.seek(SeekFrom::Start((new_pos + offset) as u64))?;
+                self.write_all(buffer.as_mut_slice())?;
+
+                remaining -= buffer.len();
+            }
+
+            Ok(())
+        } else {
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
+        }
+    }
 }
 
 impl Seek for CacheFile {
@@ -42,7 +99,7 @@ impl Seek for CacheFile {
         if let Some(ref mut file) = self.file {
             file.seek(pos)
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 }
@@ -52,7 +109,7 @@ impl Read for CacheFile {
         if let Some(ref mut file) = self.file {
             file.read(buf)
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 }
@@ -62,7 +119,7 @@ impl ReadBinary for CacheFile {
         if let Some(ref mut file) = self.file {
             file.read_binary()
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 }
@@ -72,7 +129,7 @@ impl Write for CacheFile {
         if let Some(ref mut file) = self.file {
             file.write(buf)
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 
@@ -80,7 +137,7 @@ impl Write for CacheFile {
         if let Some(ref mut file) = self.file {
             file.flush()
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 }
@@ -90,7 +147,7 @@ impl WriteBinary for CacheFile {
         if let Some(ref mut file) = self.file {
             file.write_binary(value)
         } else {
-            Err(io::Error::new(io::ErrorKind::Other, "CacheFile has not been opened"))
+            Err(Error::new(ErrorKind::Other, "CacheFile has not been opened"))
         }
     }
 }
