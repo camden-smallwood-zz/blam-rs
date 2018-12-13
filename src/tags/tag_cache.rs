@@ -28,7 +28,7 @@ impl TagCache {
                 offset: offsets[index as usize],
                 ..Default::default()
             };
-            instance.read_header(&mut file)?;
+            let _ = instance.read_header(&mut file);
             instances.push(instance);
         }
 

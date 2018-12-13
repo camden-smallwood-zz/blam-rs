@@ -22,15 +22,14 @@ macro_rules! tag_field_impl {
     }
 }
 
-macro_rules! offset_of {
-    ($Struct:ident, $field:ident) => ({
-        fn offset_of() -> usize {
-            let u: $Struct = Default::default();
-            let &$Struct { $field: ref f, .. } = &u;
-            let o = (f as *const _ as usize).wrapping_sub(&u as *const _ as usize);
+macro_rules! offset_of_ref {
+    ($struct_name:ident, $field_name:ident, $u:expr) => ({
+        fn offset_of_ref(s: &$struct_name) -> usize {
+            let &$struct_name { $field_name: ref f, .. } = s;
+            let o = (f as *const _ as usize).wrapping_sub(s as *const _ as usize);
             o
         }
-        offset_of()
+        offset_of_ref($u)
     })
 }
 
@@ -105,6 +104,17 @@ macro_rules! tag_definition {
             $($field_vis $field_name: $field_type,)*
         }
 
+        impl $struct_name {
+            pub fn get_field(name: &'static str) -> Option<&'static TagFieldInfo> {
+                for field in $struct_name::get_fields() {
+                    if field.name == name {
+                        return Some(&field);
+                    }
+                }
+                None
+            }
+        }
+
         tag_definition_impl!($struct_name);
 
         impl Default for $struct_name {
@@ -116,16 +126,27 @@ macro_rules! tag_definition {
         }
 
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name),
-                            offset: offset_of!($struct_name, $field_name),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*
-                ]
+            type BaseType = ();
+            fn get_fields() -> &'static Vec<TagFieldInfo> {
+                unsafe {
+                    static mut FIELDS: Option<Vec<TagFieldInfo>> = None;
+                    if FIELDS.is_none() {
+                        let _instance: $struct_name = Default::default();
+                        FIELDS = Some(vec![
+                            $(TagFieldInfo {
+                                name: stringify!($field_name),
+                                offset: offset_of_ref!($struct_name, $field_name, &_instance),
+                                visible: stringify!($field_vis) == "pub",
+                                field: tag_field_impl!($field_type)
+                            },)*
+                        ]);
+                    }
+                    if let Some(ref fields) = &FIELDS {
+                        fields
+                    } else {
+                        panic!("An unknown error has occurred")
+                    }
+                }
             }
         }
     };
@@ -142,6 +163,17 @@ macro_rules! tag_definition {
             $($field_vis $field_name: $field_type,)*
         }
         
+        impl $struct_name {
+            pub fn get_field(name: &'static str) -> Option<&'static TagFieldInfo> {
+                for field in $struct_name::get_fields() {
+                    if field.name == name {
+                        return Some(&field);
+                    }
+                }
+                None
+            }
+        }
+
         tag_definition_impl!($struct_name);
 
         impl Default for $struct_name {
@@ -154,16 +186,27 @@ macro_rules! tag_definition {
         }
 
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name),
-                            offset: offset_of!($struct_name, $field_name),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*
-                ]
+            type BaseType = $base_type;
+            fn get_fields() -> &'static Vec<TagFieldInfo> {
+                unsafe {
+                    static mut FIELDS: Option<Vec<TagFieldInfo>> = None;
+                    if FIELDS.is_none() {
+                        let _instance: $struct_name = Default::default();
+                        FIELDS = Some(vec![
+                            $(TagFieldInfo {
+                                name: stringify!($field_name),
+                                offset: offset_of_ref!($struct_name, $field_name, &_instance),
+                                visible: stringify!($field_vis) == "pub",
+                                field: tag_field_impl!($field_type)
+                            },)*
+                        ]);
+                    }
+                    if let Some(ref fields) = &FIELDS {
+                        fields
+                    } else {
+                        panic!("An unknown error has occurred")
+                    }
+                }
             }
         }
     };
@@ -180,6 +223,17 @@ macro_rules! tag_definition {
             $($field_vis $field_name: $field_type,)*
         }
         
+        impl $struct_name {
+            pub fn get_field(name: &'static str) -> Option<&'static TagFieldInfo> {
+                for field in $struct_name::get_fields() {
+                    if field.name == name {
+                        return Some(&field);
+                    }
+                }
+                None
+            }
+        }
+
         tag_definition_impl!($struct_name);
         
         impl Default for $struct_name {
@@ -191,16 +245,27 @@ macro_rules! tag_definition {
         }
 
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name),
-                            offset: offset_of!($struct_name, $field_name),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*
-                ]
+            type BaseType = ();
+            fn get_fields() -> &'static Vec<TagFieldInfo> {
+                unsafe {
+                    static mut FIELDS: Option<Vec<TagFieldInfo>> = None;
+                    if FIELDS.is_none() {
+                        let _instance: $struct_name = Default::default();
+                        FIELDS = Some(vec![
+                            $(TagFieldInfo {
+                                name: stringify!($field_name),
+                                offset: offset_of_ref!($struct_name, $field_name, &_instance),
+                                visible: stringify!($field_vis) == "pub",
+                                field: tag_field_impl!($field_type)
+                            },)*
+                        ]);
+                    }
+                    if let Some(ref fields) = &FIELDS {
+                        fields
+                    } else {
+                        panic!("An unknown error has occurred")
+                    }
+                }
             }
         }
 
@@ -223,6 +288,17 @@ macro_rules! tag_definition {
             $($field_vis $field_name: $field_type,)*
         }
         
+        impl $struct_name {
+            pub fn get_field(name: &'static str) -> Option<&'static TagFieldInfo> {
+                for field in $struct_name::get_fields() {
+                    if field.name == name {
+                        return Some(&field);
+                    }
+                }
+                None
+            }
+        }
+
         tag_definition_impl!($struct_name);
         
         impl Default for $struct_name {
@@ -235,16 +311,27 @@ macro_rules! tag_definition {
         }
 
         impl TagStructDefinition for $struct_name {
-            fn get_fields() -> Vec<TagFieldInfo> {
-                vec![
-                    $(
-                        TagFieldInfo {
-                            name: stringify!($field_name),
-                            offset: offset_of!($struct_name, $field_name),
-                            field: tag_field_impl!($field_type)
-                        },
-                    )*
-                ]
+            type BaseType = $base_type;
+            fn get_fields() -> &'static Vec<TagFieldInfo> {
+                unsafe {
+                    static mut FIELDS: Option<Vec<TagFieldInfo>> = None;
+                    if FIELDS.is_none() {
+                        let _instance: $struct_name = Default::default();
+                        FIELDS = Some(vec![
+                            $(TagFieldInfo {
+                                name: stringify!($field_name),
+                                offset: offset_of_ref!($struct_name, $field_name, &_instance),
+                                visible: stringify!($field_vis) == "pub",
+                                field: tag_field_impl!($field_type)
+                            },)*
+                        ]);
+                    }
+                    if let Some(ref fields) = &FIELDS {
+                        fields
+                    } else {
+                        panic!("An unknown error has occurred")
+                    }
+                }
             }
         }
 
@@ -252,6 +339,5 @@ macro_rules! tag_definition {
             fn get_group_name() -> &'static str { $group_name_expr }
             fn get_group_tag() -> Tag { Tag::from($group_tag_expr) }
         }
-    };
-    
+    }
 }
