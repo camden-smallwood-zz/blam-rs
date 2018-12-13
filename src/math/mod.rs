@@ -9,6 +9,7 @@ mod plane3d;
 mod point2d;
 mod point3d;
 mod quaternion;
+mod real;
 mod vector2d;
 mod vector3d;
 
@@ -23,5 +24,6 @@ pub use self::plane3d::*;
 pub use self::point2d::*;
 pub use self::point3d::*;
 pub use self::quaternion::*;
+pub use self::real::*;
 pub use self::vector2d::*;
 pub use self::vector3d::*;

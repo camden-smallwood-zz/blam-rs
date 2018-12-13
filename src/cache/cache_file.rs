@@ -1,4 +1,4 @@
-use std::{cmp, fs::{File, OpenOptions}, io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem};
+use std::{cmp, fs::{File, OpenOptions}, io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem, path::Path};
 use crate::io::{ReadBinary, WriteBinary};
 
 #[repr(C)]
@@ -33,7 +33,7 @@ pub struct CacheFile {
 impl CacheFile {
     const PAGE_SIZE: usize = 0x1000;
 
-    pub fn open(path: String) -> io::Result<CacheFile> {
+    pub fn open<P: AsRef<Path>>(path: P) -> io::Result<CacheFile> {
         let mut file = OpenOptions::new().read(true).write(true).open(path)?;
         
         file.seek(SeekFrom::Start(0))?;

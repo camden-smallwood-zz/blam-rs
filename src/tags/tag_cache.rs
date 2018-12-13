@@ -1,4 +1,4 @@
-use std::{io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem, ops::{Index, IndexMut}, u32};
+use std::{io::{self, Error, ErrorKind, Read, Seek, SeekFrom, Write}, mem, ops::{Index, IndexMut}, path::Path, u32};
 use crate::{cache::{CacheFile, CacheFileHeader}, io::{ReadBinary, WriteBinary}, tags::{TagGroup, TagInstance, TagInstanceHeader}};
 
 pub struct TagCache {
@@ -7,7 +7,7 @@ pub struct TagCache {
 }
 
 impl TagCache {
-    pub fn open(path: String) -> io::Result<TagCache> {
+    pub fn open<P: AsRef<Path>>(path: P) -> io::Result<TagCache> {
         let mut file = CacheFile::open(path)?;
         let mut instances: Vec<TagInstance> = vec![];
         

@@ -42,7 +42,7 @@ tag_definition! {
 tag_definition! {
     pub struct VehicleSteeringAnimation {
         pub interpolation_scale: f32,
-        pub maximum_angle: Angle
+        pub maximum_angle: Angle<f32>
     }
 }
 
@@ -72,7 +72,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct VehicleHumanTankPhysics {
-        pub forward_arc: Angle,
+        pub forward_arc: Angle<f32>,
         pub flip_window: f32,
         pub pegged_fraction: f32,
         pub maximum_left_differential: f32,
@@ -117,7 +117,7 @@ tag_definition! {
         pub air_friction_deceleration: f32,
         pub thrust_scale: f32,
         pub turn_rate_scale_when_boosting: f32,
-        pub maximum_roll: Angle,
+        pub maximum_roll: Angle<f32>,
         pub steering_animation: VehicleSteeringAnimation
     }
 }
@@ -140,7 +140,7 @@ tag_definition! {
 
 tag_definition! {
     pub struct VehicleAlienScoutPhysics {
-        pub steering_overdampen_cusp_angle: Angle,
+        pub steering_overdampen_cusp_angle: Angle<f32>,
         pub steering_overdamen_exponent: f32,
         pub maximum_forward_speed: f32,
         pub maximum_reverse_speed: f32,
@@ -176,7 +176,7 @@ tag_definition! {
         pub slide_deceleration: f32,
         pub slide_accel_against_direction: f32,
         pub flying_torque_scale: f32,
-        pub fixed_gun_offset: Angles2d,
+        pub fixed_gun_offset: Angles2d<f32>,
         pub loop_trick_duration: f32,
         pub roll_trick_duration: f32,
         pub zero_gravity_speed: f32,

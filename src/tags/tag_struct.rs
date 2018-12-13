@@ -48,6 +48,7 @@ pub enum TagField {
     Undefined
 }
 
+#[derive(Debug)]
 pub struct TagFieldInfo {
     pub name: &'static str,
     pub offset: usize,

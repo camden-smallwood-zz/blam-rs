@@ -42,7 +42,7 @@ macro_rules! tag_definition {
     ) => {
         #[repr(C)]
         #[allow(clippy::identity_op)]
-        #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+        #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
             $($option_name $(= $option_value)*,)*
         }
@@ -69,7 +69,7 @@ macro_rules! tag_definition {
     ) => {
         #[repr(C)]
         #[allow(clippy::identity_op)]
-        #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+        #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
         $enum_vis enum $enum_name {
             $($option_name = 1 << $bit_index_expr,)*
         }
@@ -136,7 +136,7 @@ macro_rules! tag_definition {
                             $(TagFieldInfo {
                                 name: stringify!($field_name),
                                 offset: offset_of_ref!($struct_name, $field_name, &_instance),
-                                visible: stringify!($field_vis) == "pub",
+                                visible: stringify!($field_vis) == "pub ",
                                 field: tag_field_impl!($field_type)
                             },)*
                         ]);
@@ -196,7 +196,7 @@ macro_rules! tag_definition {
                             $(TagFieldInfo {
                                 name: stringify!($field_name),
                                 offset: offset_of_ref!($struct_name, $field_name, &_instance),
-                                visible: stringify!($field_vis) == "pub",
+                                visible: stringify!($field_vis) == "pub ",
                                 field: tag_field_impl!($field_type)
                             },)*
                         ]);
@@ -255,7 +255,7 @@ macro_rules! tag_definition {
                             $(TagFieldInfo {
                                 name: stringify!($field_name),
                                 offset: offset_of_ref!($struct_name, $field_name, &_instance),
-                                visible: stringify!($field_vis) == "pub",
+                                visible: stringify!($field_vis) == "pub ",
                                 field: tag_field_impl!($field_type)
                             },)*
                         ]);
@@ -321,7 +321,7 @@ macro_rules! tag_definition {
                             $(TagFieldInfo {
                                 name: stringify!($field_name),
                                 offset: offset_of_ref!($struct_name, $field_name, &_instance),
-                                visible: stringify!($field_vis) == "pub",
+                                visible: stringify!($field_vis) == "pub ",
                                 field: tag_field_impl!($field_type)
                             },)*
                         ]);

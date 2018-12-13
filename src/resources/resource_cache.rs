@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, path::Path};
 use crate::cache::CacheFile;
 
 pub struct ResourceCache {
@@ -6,7 +6,7 @@ pub struct ResourceCache {
 }
 
 impl ResourceCache {
-    pub fn open(path: String) -> io::Result<ResourceCache> {
+    pub fn open<P: AsRef<Path>>(path: P) -> io::Result<ResourceCache> {
         Ok(Self { file: CacheFile::open(path)? })
     }
 }

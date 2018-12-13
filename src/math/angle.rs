@@ -1,9 +1,11 @@
+use crate::math::Real;
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct Angle(pub f32);
+pub struct Angle<T: Real>(pub T);
 
-impl Default for Angle {
+impl<T: Default + Real> Default for Angle<T> {
     fn default() -> Self {
-        Angle(0.0)
+        Angle(Default::default())
     }
 }

@@ -79,11 +79,11 @@ tag_definition! {
         pub potential_response: TagEnum<i16, ProjectileMaterialResponseType>,
         pub response_flags: TagFlags<u16, ProjectileMaterialResponseFlags>,
         pub chance_fraction: f32,
-        pub between_angle: Bounds<Angle>,
+        pub between_angle: Bounds<Angle<f32>>,
         pub and_velocity: Bounds<f32>,
         pub scale_effects_by: TagEnum<i16, ProjectileMaterialResponseEffectScale>,
         unused2: TagPadding<u16>,
-        pub angular_noise: Angle,
+        pub angular_noise: Angle<f32>,
         pub velocity_noise: f32,
         pub initial_friction: f32,
         pub maximum_distance: f32,
@@ -94,8 +94,8 @@ tag_definition! {
 
 tag_definition! {
     pub struct ProjectileBruteGrenadeDefinition {
-        pub angular_velocity_range: Bounds<Angle>,
-        pub spin_angular_velocity: Angle,
+        pub angular_velocity_range: Bounds<Angle<f32>>,
+        pub spin_angular_velocity: Angle<f32>,
         pub angular_damping: f32,
         pub drag_angle_k: f32,
         pub drag_speed_k: f32,
@@ -119,7 +119,7 @@ tag_definition! {
         pub amount: i16,
         pub distance: i16,
         pub accuracy: f32,
-        pub spread_cone_angle: Angle
+        pub spread_cone_angle: Angle<f32>
     }
 }
 
@@ -167,8 +167,8 @@ tag_definition! {
         pub indirect_fire_velocity: f32,
         pub ai_velocity_scale: f32,
         pub ai_guided_angular_velocity_scale: f32,
-        pub guided_angular_velocity: Bounds<Angle>,
-        pub guided_angular_velocity_at_rest: Angle,
+        pub guided_angular_velocity: Bounds<Angle<f32>>,
+        pub guided_angular_velocity_at_rest: Angle<f32>,
         pub acceleration_range: Bounds<f32>,
         pub ai_target_leading_scale: f32,
         pub targeted_leading_fraction: f32,

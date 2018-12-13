@@ -75,7 +75,7 @@ tag_definition! {
         pub x_bounds: Bounds<f32>,
         pub y_bounds: Bounds<f32>,
         pub z_bounds: Bounds<f32>,
-        pub angles: Angles3d
+        pub angles: Angles3d<f32>
     }
 }
 
