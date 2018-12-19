@@ -35,6 +35,10 @@ impl TagCache {
         Ok(Self { file, instances })
     }
 
+    pub fn get_tag_count(&self) -> isize {
+        self.file.header.unwrap().instance_count as isize
+    }
+
     pub fn allocate_tag(&mut self, group: TagGroup) -> &mut TagInstance {
         let index = self.instances.len();
         self.instances.push(TagInstance::new(group));

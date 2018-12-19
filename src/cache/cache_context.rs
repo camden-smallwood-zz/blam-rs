@@ -1,14 +1,14 @@
 use crate::{resources::{ResourceCache, ResourceLocation}, tags::TagCache};
 use std::{collections::HashMap, io, path::Path};
 
-pub struct CacheContext<P: AsRef<Path>> {
-    pub path: P,
+pub struct CacheContext {
+    pub path: Box<dyn AsRef<Path>>,
     pub tag_cache: TagCache,
     pub resource_caches: HashMap<ResourceLocation, ResourceCache>
 }
 
-impl<P: AsRef<Path>> CacheContext<P> {
-    pub fn open(path: P) -> io::Result<CacheContext<P>> {
+impl CacheContext {
+    pub fn open<P: 'static + AsRef<Path>>(path: P) -> io::Result<CacheContext> {
         let tag_cache = TagCache::open(path.as_ref().join("tags.dat"))?;
         
         let mut resource_caches: HashMap<ResourceLocation, ResourceCache> = HashMap::new();
@@ -18,6 +18,6 @@ impl<P: AsRef<Path>> CacheContext<P> {
         resource_caches.insert(ResourceLocation::Textures, ResourceCache::open(path.as_ref().join("textures.dat"))?);
         resource_caches.insert(ResourceLocation::TexturesB, ResourceCache::open(path.as_ref().join("textures_b.dat"))?);
 
-        Ok(CacheContext { path, tag_cache, resource_caches })
+        Ok(CacheContext { path: Box::new(path), tag_cache, resource_caches })
     }
 }
